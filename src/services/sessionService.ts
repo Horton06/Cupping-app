@@ -23,6 +23,8 @@ import type {
   ScoreValue,
   CoffeeFormData,
   SessionFilters,
+  RoastLevel,
+  SyncStatus,
 } from '../types/session.types';
 import type { SelectedFlavor } from '../types/flavor.types';
 import { generateUUID } from '../utils/uuid';
@@ -182,7 +184,7 @@ class SessionService {
         roaster: coffeeRow.roaster || undefined,
         origin: coffeeRow.origin || undefined,
         brewMethod: coffeeRow.brew_method || undefined,
-        roastLevel: (coffeeRow.roast_level as string | null) || undefined,
+        roastLevel: (coffeeRow.roast_level || undefined) as RoastLevel | undefined,
         roastDate: coffeeRow.roast_date || undefined,
         cups,
       });
@@ -197,7 +199,7 @@ class SessionService {
       coffees,
       notes: session.notes || undefined,
       tags: session.tags ? JSON.parse(session.tags) : undefined,
-      syncStatus: session.sync_status || undefined,
+      syncStatus: (session.sync_status || undefined) as SyncStatus | undefined,
       userId: session.user_id || undefined,
     };
   }
