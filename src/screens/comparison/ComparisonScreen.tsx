@@ -17,18 +17,18 @@ import {
   ScrollView,
   SafeAreaView,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import type { HistoryStackParamList } from '../../navigation/types';
-import { Card, Divider } from '../../components';
+import { Card, Divider, ErrorState, LoadingSpinner } from '../../components';
 import { RadarChart } from '../../components/SessionSummary/RadarChart';
 import { sessionService } from '../../services/sessionService';
 import { analyticsService } from '../../services/analyticsService';
 import type { Session, CoffeeEntry } from '../../types/session.types';
 import type { CoffeeComparison } from '../../services/analyticsService';
 import { colors, spacing, typography } from '../../theme';
+import { handleError } from '../../utils/errorHandling';
 
 type ComparisonRouteProp = RouteProp<HistoryStackParamList, 'Comparison'>;
 
@@ -41,13 +41,16 @@ export const ComparisonScreen: React.FC = () => {
   const [selectedCoffee2, setSelectedCoffee2] = useState<string | null>(initialCoffeeId2 || null);
   const [comparison, setComparison] = useState<CoffeeComparison | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showSCAScores, setShowSCAScores] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   // Load session
   useEffect(() => {
     const loadSession = async () => {
       try {
         setLoading(true);
+        setError(null);
         const data = await sessionService.getSession(sessionId);
         setSession(data);
 
@@ -60,16 +63,16 @@ export const ComparisonScreen: React.FC = () => {
             setSelectedCoffee2(data.coffees[1].coffeeId);
           }
         }
-      } catch (error) {
-        console.error('[Comparison] Error loading session:', error);
-        Alert.alert('Error', 'Failed to load session data.');
+      } catch (err) {
+        const errorMessage = handleError(err, 'ComparisonScreen.loadSession');
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
     };
 
     loadSession();
-  }, [sessionId, selectedCoffee1, selectedCoffee2]);
+  }, [sessionId, selectedCoffee1, selectedCoffee2, retryCount]);
 
   // Load comparison data
   useEffect(() => {
@@ -98,8 +101,23 @@ export const ComparisonScreen: React.FC = () => {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading comparison...</Text>
+          <LoadingSpinner message="Loading comparison..." />
         </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ErrorState
+          title="Failed to Load Comparison"
+          message={error}
+          action={{
+            title: 'Try Again',
+            onPress: () => setRetryCount((prev) => prev + 1),
+          }}
+        />
       </SafeAreaView>
     );
   }

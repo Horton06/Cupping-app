@@ -18,6 +18,7 @@ import { Button, Card } from '../../components';
 import { sessionService } from '../../services/sessionService';
 import { getDatabase } from '../../services/database/connection';
 import { colors, typography, spacing } from '../../theme';
+import { handleError } from '../../utils/errorHandling';
 
 export const DataManagementScreen: React.FC = () => {
   const [exporting, setExporting] = useState(false);
@@ -82,9 +83,9 @@ export const DataManagementScreen: React.FC = () => {
         sessionCount: sessions.length,
         sizeKB: sizeInKB,
       });
-    } catch (error) {
-      console.error('[DataManagement] Export error:', error);
-      Alert.alert('Export Failed', 'An error occurred while preparing the export.');
+    } catch (err) {
+      const errorMessage = handleError(err, 'DataManagementScreen.handleExport');
+      Alert.alert('Export Failed', errorMessage);
     } finally {
       setExporting(false);
     }
@@ -123,9 +124,9 @@ export const DataManagementScreen: React.FC = () => {
               ]);
 
               console.log('[DataManagement] All data cleared successfully');
-            } catch (error) {
-              console.error('[DataManagement] Clear data error:', error);
-              Alert.alert('Error', 'Failed to clear data. Please try again.');
+            } catch (err) {
+              const errorMessage = handleError(err, 'DataManagementScreen.handleClearData');
+              Alert.alert('Error', errorMessage);
             }
           },
         },

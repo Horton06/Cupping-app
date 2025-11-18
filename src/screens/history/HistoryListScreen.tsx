@@ -24,11 +24,12 @@ import {
 } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { HistoryNavigationProp } from '../../navigation/types';
-import { Card, Badge } from '../../components';
+import { Card, Badge, ErrorState, LoadingSpinner } from '../../components';
 import { sessionService } from '../../services/sessionService';
 import type { Session, SessionType } from '../../types/session.types';
 import { colors, spacing, typography } from '../../theme';
 import { useDebounce } from '../../hooks/useDebounce';
+import { handleError } from '../../utils/errorHandling';
 
 type FilterType = SessionType | 'all';
 
@@ -39,6 +40,7 @@ export const HistoryListScreen: React.FC = () => {
   const [filteredSessions, setFilteredSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<FilterType>('all');
 
@@ -46,15 +48,16 @@ export const HistoryListScreen: React.FC = () => {
   const loadSessions = useCallback(async (showLoading = true) => {
     try {
       if (showLoading) setLoading(true);
+      setError(null);
       const allSessions = await sessionService.getAllSessions({
         sortBy: 'createdAt',
         sortOrder: 'desc',
       });
       setSessions(allSessions);
       setFilteredSessions(allSessions);
-    } catch (error) {
-      console.error('[HistoryList] Error loading sessions:', error);
-      Alert.alert('Error', 'Failed to load sessions. Please try again.');
+    } catch (err) {
+      const errorMessage = handleError(err, 'HistoryListScreen.loadSessions');
+      setError(errorMessage);
     } finally {
       if (showLoading) setLoading(false);
     }
@@ -303,8 +306,23 @@ export const HistoryListScreen: React.FC = () => {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading sessions...</Text>
+          <LoadingSpinner />
         </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ErrorState
+          title="Failed to Load Sessions"
+          message={error}
+          action={{
+            title: 'Try Again',
+            onPress: () => loadSessions(),
+          }}
+        />
       </SafeAreaView>
     );
   }

@@ -13,7 +13,6 @@ import {
   StyleSheet,
   ScrollView,
   SafeAreaView,
-  Alert,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import type {
@@ -21,12 +20,13 @@ import type {
   HistoryDetailRouteProp,
   HistoryNavigationProp,
 } from '../../navigation/types';
-import { Card, Badge, Divider, Button } from '../../components';
+import { Card, Badge, Divider, Button, ErrorState, LoadingSpinner } from '../../components';
 import { RadarChart } from '../../components/SessionSummary/RadarChart';
 import { FlavorChips } from '../../components/SessionSummary/FlavorChips';
 import { sessionService } from '../../services/sessionService';
 import type { Session } from '../../types/session.types';
 import { colors, spacing, typography } from '../../theme';
+import { handleError } from '../../utils/errorHandling';
 
 export const SessionDetailScreen: React.FC = () => {
   const route = useRoute<SessionDetailRouteProp | HistoryDetailRouteProp>();
@@ -35,25 +35,28 @@ export const SessionDetailScreen: React.FC = () => {
 
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showSCAScores, setShowSCAScores] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   // Load session data
   useEffect(() => {
     const loadSession = async () => {
       try {
         setLoading(true);
+        setError(null);
         const data = await sessionService.getSession(sessionId);
         setSession(data);
-      } catch (error) {
-        console.error('[SessionDetail] Error loading session:', error);
-        Alert.alert('Error', 'Failed to load session details.');
+      } catch (err) {
+        const errorMessage = handleError(err, 'SessionDetailScreen.loadSession');
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
     };
 
     loadSession();
-  }, [sessionId]);
+  }, [sessionId, retryCount]);
 
   // Toggle SCA scores
   const handleToggleSCAScores = useCallback(() => {
@@ -75,8 +78,23 @@ export const SessionDetailScreen: React.FC = () => {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading session...</Text>
+          <LoadingSpinner message="Loading session..." />
         </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ErrorState
+          title="Failed to Load Session"
+          message={error}
+          action={{
+            title: 'Try Again',
+            onPress: () => setRetryCount((prev) => prev + 1),
+          }}
+        />
       </SafeAreaView>
     );
   }
@@ -84,9 +102,14 @@ export const SessionDetailScreen: React.FC = () => {
   if (!session) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.errorText}>Session not found</Text>
-        </View>
+        <ErrorState
+          title="Session Not Found"
+          message="The requested session could not be found."
+          action={{
+            title: 'Go Back',
+            onPress: () => navigation.goBack(),
+          }}
+        />
       </SafeAreaView>
     );
   }

@@ -25,6 +25,11 @@ export type { EmptyStateProps } from './EmptyState';
 export { ErrorMessage } from './ErrorMessage';
 export type { ErrorMessageProps } from './ErrorMessage';
 
+export { ErrorBoundary } from './Common/ErrorBoundary';
+
+export { ErrorState } from './Common/ErrorState';
+export type { ErrorStateProps } from './Common/ErrorState';
+
 export { ScoreSlider } from './ScoreSlider';
 export type { ScoreSliderProps } from './ScoreSlider';
 
