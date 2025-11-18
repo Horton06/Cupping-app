@@ -4,7 +4,7 @@
  * Small label/tag for displaying categories, status, etc.
  */
 
-import React from 'react';
+import React, { memo } from 'react';
 import { View, Text, StyleSheet, ViewStyle } from 'react-native';
 import { colors, typography, spacing } from '../theme';
 
@@ -17,7 +17,7 @@ export interface BadgeProps {
   style?: ViewStyle;
 }
 
-export const Badge: React.FC<BadgeProps> = ({
+export const Badge: React.FC<BadgeProps> = memo(({
   label,
   variant = 'default',
   color,
@@ -30,7 +30,9 @@ export const Badge: React.FC<BadgeProps> = ({
       <Text style={styles.label}>{label}</Text>
     </View>
   );
-};
+});
+
+Badge.displayName = 'Badge';
 
 const variantColors: Record<BadgeVariant, string> = {
   default: colors.surface,

@@ -4,7 +4,7 @@
  * Displays when there's no data to show.
  */
 
-import React from 'react';
+import React, { memo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Button } from '../Button';
 import { colors, spacing, typography } from '../../theme';
@@ -19,7 +19,7 @@ export interface EmptyStateProps {
   };
 }
 
-export const EmptyState: React.FC<EmptyStateProps> = ({
+export const EmptyState: React.FC<EmptyStateProps> = memo(({
   icon = '📋',
   title,
   message,
@@ -42,7 +42,9 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       )}
     </View>
   );
-};
+});
+
+EmptyState.displayName = 'EmptyState';
 
 const styles = StyleSheet.create({
   container: {

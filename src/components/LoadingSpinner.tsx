@@ -4,7 +4,7 @@
  * Centered loading indicator with optional message.
  */
 
-import React from 'react';
+import React, { memo } from 'react';
 import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
 import { colors, typography, spacing } from '../theme';
 
@@ -14,7 +14,7 @@ export interface LoadingSpinnerProps {
   fullScreen?: boolean;
 }
 
-export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
+export const LoadingSpinner: React.FC<LoadingSpinnerProps> = memo(({
   message,
   size = 'large',
   fullScreen = false,
@@ -25,7 +25,9 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
       {message && <Text style={styles.message}>{message}</Text>}
     </View>
   );
-};
+});
+
+LoadingSpinner.displayName = 'LoadingSpinner';
 
 const styles = StyleSheet.create({
   container: {

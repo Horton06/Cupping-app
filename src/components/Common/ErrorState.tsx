@@ -4,7 +4,7 @@
  * Displays error messages with optional retry action.
  */
 
-import React from 'react';
+import React, { memo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Button } from '../Button';
 import { colors, spacing, typography } from '../../theme';
@@ -18,7 +18,7 @@ export interface ErrorStateProps {
   };
 }
 
-export const ErrorState: React.FC<ErrorStateProps> = ({
+export const ErrorState: React.FC<ErrorStateProps> = memo(({
   title = 'Error',
   message,
   action,
@@ -39,7 +39,9 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
       )}
     </View>
   );
-};
+});
+
+ErrorState.displayName = 'ErrorState';
 
 const styles = StyleSheet.create({
   container: {
