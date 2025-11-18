@@ -10,6 +10,7 @@ import type { HistoryStackParamList } from './types';
 import { HistoryListScreen } from '../screens/history/HistoryListScreen';
 import { SessionDetailScreen } from '../screens/sessions/SessionDetailScreen';
 import { ComparisonScreen } from '../screens/comparison/ComparisonScreen';
+import { TableCuppingScreen } from '../screens/history/TableCuppingScreen';
 import { colors, typography } from '../theme';
 
 const Stack = createStackNavigator<HistoryStackParamList>();
@@ -50,6 +51,11 @@ export const HistoryStack: React.FC = () => {
         name="Comparison"
         component={ComparisonScreen}
         options={{ title: 'Compare Coffees' }}
+      />
+      <Stack.Screen
+        name="TableCupping"
+        component={TableCuppingScreen}
+        options={{ title: 'Table Cupping' }}
       />
       <Stack.Screen
         name="HistoryStats"

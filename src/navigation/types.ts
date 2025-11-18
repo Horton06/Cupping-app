@@ -54,6 +54,7 @@ export type HistoryStackParamList = {
   HistoryList: undefined;
   HistoryDetail: { sessionId: string };
   Comparison: { sessionId: string; coffeeId1?: string; coffeeId2?: string };
+  TableCupping: { sessionId: string; coffeeId: string };
   HistoryStats: undefined;
 };
 

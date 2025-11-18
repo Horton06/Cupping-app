@@ -234,6 +234,26 @@ export const SessionDetailScreen: React.FC = () => {
                   </View>
                 )}
 
+                {/* Table Cupping Button - show if 3+ cups */}
+                {cupCount >= 3 && (
+                  <>
+                    <Divider spacing="medium" />
+                    <Button
+                      title={`Table Cupping Analysis (${cupCount} cups)`}
+                      onPress={() =>
+                        navigation.navigate('TableCupping', {
+                          sessionId: session.id,
+                          coffeeId: coffee.coffeeId,
+                        })
+                      }
+                      variant="outline"
+                      fullWidth
+                      accessibilityLabel={`View table cupping analysis for ${coffee.name}`}
+                      accessibilityHint="Shows cup-by-cup comparison and uniformity scoring"
+                    />
+                  </>
+                )}
+
                 <Divider spacing="medium" />
 
                 {/* Radar Chart */}
