@@ -603,6 +603,35 @@ class SessionService {
 
     console.log(`[SessionService] Updated flavors for cup ${cupId}`);
   }
+
+  /**
+   * Update session notes and tags.
+   *
+   * @param sessionId - Session ID
+   * @param notes - Session notes
+   * @param tags - Session tags (optional)
+   */
+  async updateSessionNotes(
+    sessionId: string,
+    notes?: string,
+    tags?: string[]
+  ): Promise<void> {
+    const db = await getDatabase();
+    const now = new Date().toISOString();
+
+    await db.transactionAsync(async tx => {
+      await tx.executeSqlAsync(
+        `UPDATE sessions
+         SET updated_at = ?,
+             notes = ?,
+             tags = ?
+         WHERE id = ?`,
+        [now, notes || null, tags ? JSON.stringify(tags) : null, sessionId]
+      );
+    }, false);
+
+    console.log(`[SessionService] Updated notes for session ${sessionId}`);
+  }
 }
 
 // Export singleton instance

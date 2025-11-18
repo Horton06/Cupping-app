@@ -31,6 +31,9 @@ export type { ScoreSliderProps } from './ScoreSlider';
 export { Divider } from './Divider';
 export type { DividerProps } from './Divider';
 
+export { ProgressSteps } from './ProgressSteps';
+export type { ProgressStepsProps, ProgressStep } from './ProgressSteps';
+
 // Form components
 export { useForm } from './Forms';
 export type { UseFormOptions, UseFormReturn } from './Forms';
