@@ -64,6 +64,7 @@ export type SettingsStackParamList = {
   SettingsHome: undefined;
   About: undefined;
   DataManagement: undefined;
+  FlavorWheelReference: undefined;
 };
 
 /**

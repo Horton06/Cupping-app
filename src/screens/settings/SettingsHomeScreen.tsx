@@ -74,6 +74,25 @@ export const SettingsHomeScreen: React.FC = () => {
           </View>
         </Card>
 
+        {/* Reference */}
+        <Card style={styles.section}>
+          <Text style={styles.sectionTitle}>Reference</Text>
+
+          <TouchableOpacity
+            style={styles.settingButton}
+            onPress={() => navigation.navigate('FlavorWheelReference')}
+            activeOpacity={0.7}
+          >
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingLabel}>Flavor Wheel</Text>
+              <Text style={styles.settingDescription}>
+                Browse the SCA flavor wheel
+              </Text>
+            </View>
+            <Text style={styles.chevron}>›</Text>
+          </TouchableOpacity>
+        </Card>
+
         {/* Data Management */}
         <Card style={styles.section}>
           <Text style={styles.sectionTitle}>Data</Text>
