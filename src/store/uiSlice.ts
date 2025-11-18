@@ -22,7 +22,7 @@ export interface Toast {
 export interface ModalState {
   isOpen: boolean;
   modalType: string | null;
-  modalProps?: Record<string, any>;
+  modalProps?: Record<string, unknown>;
 }
 
 /**
@@ -42,7 +42,7 @@ export interface UISlice {
   showToast: (message: string, type?: Toast['type'], duration?: number) => void;
   hideToast: (id: string) => void;
   clearToasts: () => void;
-  openModal: (modalType: string, props?: Record<string, any>) => void;
+  openModal: (modalType: string, props?: Record<string, unknown>) => void;
   closeModal: () => void;
   setGlobalLoading: (isLoading: boolean) => void;
 }
@@ -99,7 +99,7 @@ export const createUISlice: StateCreator<UISlice> = (set, get) => ({
   },
 
   // Open modal
-  openModal: (modalType: string, props?: Record<string, any>) => {
+  openModal: (modalType: string, props?: Record<string, unknown>) => {
     set({
       modal: {
         isOpen: true,

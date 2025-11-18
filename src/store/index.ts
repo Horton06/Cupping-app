@@ -48,7 +48,7 @@ export const useStore = create<AppStore>()(
       version: 1,
 
       // Migration function for future schema changes
-      migrate: (persistedState: any, version: number) => {
+      migrate: (persistedState: unknown, version: number) => {
         console.log('[Store] Migrating from version', version);
 
         if (version === 0) {

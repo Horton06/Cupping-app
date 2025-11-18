@@ -182,7 +182,7 @@ class SessionService {
         roaster: coffeeRow.roaster || undefined,
         origin: coffeeRow.origin || undefined,
         brewMethod: coffeeRow.brew_method || undefined,
-        roastLevel: coffeeRow.roast_level as any || undefined,
+        roastLevel: (coffeeRow.roast_level as string | null) || undefined,
         roastDate: coffeeRow.roast_date || undefined,
         cups,
       });
@@ -197,7 +197,7 @@ class SessionService {
       coffees,
       notes: session.notes || undefined,
       tags: session.tags ? JSON.parse(session.tags) : undefined,
-      syncStatus: (session.sync_status as any) || undefined,
+      syncStatus: session.sync_status || undefined,
       userId: session.user_id || undefined,
     };
   }
@@ -307,7 +307,7 @@ class SessionService {
 
     // Build query based on filters
     let query = 'SELECT * FROM sessions WHERE 1=1';
-    const params: any[] = [];
+    const params: (string | number)[] = [];
 
     if (filters?.type) {
       query += ' AND session_type = ?';

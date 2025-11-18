@@ -10,11 +10,14 @@ export const colors = {
   background: '#000000',           // Pure black for OLED-friendly design
   surface: '#1a1a1a',             // Elevated surfaces (cards, panels)
   surfaceElevated: '#2a2a2a',     // Higher elevation surfaces
+  primary: '#3B82F6',             // Primary brand color
 
-  // Text colors
-  text: '#ffffff',                // Primary text
-  textSecondary: '#888888',       // Secondary text, labels
-  textTertiary: '#666666',        // Disabled, placeholder text
+  // Text colors (nested structure)
+  text: {
+    primary: '#ffffff',           // Primary text
+    secondary: '#888888',         // Secondary text, labels
+    tertiary: '#666666',          // Disabled, placeholder text
+  },
 
   // Border and divider
   border: 'rgba(255, 255, 255, 0.3)',  // Subtle borders
