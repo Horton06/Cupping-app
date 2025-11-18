@@ -5,14 +5,14 @@
  */
 
 import React from 'react';
-import { View, StyleSheet, ViewStyle, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, StyleProp, ViewStyle, TouchableOpacity } from 'react-native';
 import { colors, spacing, shadows } from '../theme';
 
 export interface CardProps {
   children: React.ReactNode;
   onPress?: () => void;
   elevated?: boolean;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
 }
 
 export const Card: React.FC<CardProps> = ({

@@ -7,6 +7,8 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import type { SettingsStackParamList } from './types';
+import { SettingsHomeScreen } from '../screens/settings/SettingsHomeScreen';
+import { DataManagementScreen } from '../screens/settings/DataManagementScreen';
 import { SettingsScreen } from '../screens/settings/SettingsScreen';
 import { colors, typography } from '../theme';
 
@@ -36,17 +38,17 @@ export const SettingsStack: React.FC = () => {
     >
       <Stack.Screen
         name="SettingsHome"
-        component={SettingsScreen}
+        component={SettingsHomeScreen}
         options={{ title: 'Settings' }}
       />
       <Stack.Screen
         name="About"
-        component={SettingsScreen} // Placeholder
+        component={SettingsScreen} // Placeholder - Phase 3
         options={{ title: 'About' }}
       />
       <Stack.Screen
         name="DataManagement"
-        component={SettingsScreen} // Placeholder
+        component={DataManagementScreen}
         options={{ title: 'Data Management' }}
       />
     </Stack.Navigator>
