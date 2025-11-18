@@ -70,7 +70,7 @@ const SCORE_ATTRIBUTES: ScoreAttribute[] = [
 export const StructureScoringScreen: React.FC = () => {
   const route = useRoute<StructureScoringRouteProp>();
   const navigation = useNavigation();
-  const { sessionId, coffeeId: _coffeeId, cupId } = route.params;
+  const { sessionId, cupId } = route.params;
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
