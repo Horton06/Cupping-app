@@ -13,3 +13,6 @@ export type { RoastLevelPickerProps } from './RoastLevelPicker';
 
 export { CoffeeMetadataForm } from './CoffeeMetadataForm';
 export type { CoffeeMetadataFormProps } from './CoffeeMetadataForm';
+
+export { TagSelector } from './TagSelector';
+export type { TagSelectorProps } from './TagSelector';
