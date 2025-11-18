@@ -15,12 +15,13 @@ import {
   SafeAreaView,
   Alert,
 } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import type {
   SessionDetailRouteProp,
   HistoryDetailRouteProp,
+  HistoryNavigationProp,
 } from '../../navigation/types';
-import { Card, Badge, Divider } from '../../components';
+import { Card, Badge, Divider, Button } from '../../components';
 import { RadarChart } from '../../components/SessionSummary/RadarChart';
 import { FlavorChips } from '../../components/SessionSummary/FlavorChips';
 import { sessionService } from '../../services/sessionService';
@@ -29,6 +30,7 @@ import { colors, spacing, typography } from '../../theme';
 
 export const SessionDetailScreen: React.FC = () => {
   const route = useRoute<SessionDetailRouteProp | HistoryDetailRouteProp>();
+  const navigation = useNavigation<HistoryNavigationProp>();
   const { sessionId } = route.params;
 
   const [session, setSession] = useState<Session | null>(null);
@@ -57,6 +59,17 @@ export const SessionDetailScreen: React.FC = () => {
   const handleToggleSCAScores = useCallback(() => {
     setShowSCAScores((prev) => !prev);
   }, []);
+
+  // Navigate to comparison screen
+  const handleCompare = useCallback(() => {
+    if (session && session.coffees.length >= 2) {
+      navigation.navigate('Comparison', {
+        sessionId: session.id,
+        coffeeId1: session.coffees[0].coffeeId,
+        coffeeId2: session.coffees[1].coffeeId,
+      });
+    }
+  }, [session, navigation]);
 
   if (loading) {
     return (
@@ -112,6 +125,17 @@ export const SessionDetailScreen: React.FC = () => {
             </View>
           )}
         </Card>
+
+        {/* Compare Button - only show if 2+ coffees */}
+        {session.coffees.length >= 2 && (
+          <Button
+            title="Compare Coffees"
+            onPress={handleCompare}
+            variant="secondary"
+            fullWidth
+            style={styles.compareButton}
+          />
+        )}
 
         {/* Coffee Cards */}
         {session.coffees.map((coffee, coffeeIdx) => {
@@ -335,6 +359,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
+  },
+  compareButton: {
+    marginBottom: spacing.lg,
   },
   coffeeIndex: {
     ...typography.heading3,

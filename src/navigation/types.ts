@@ -53,6 +53,7 @@ export type NewSessionStackParamList = {
 export type HistoryStackParamList = {
   HistoryList: undefined;
   HistoryDetail: { sessionId: string };
+  Comparison: { sessionId: string; coffeeId1?: string; coffeeId2?: string };
   HistoryStats: undefined;
 };
 
