@@ -2,7 +2,20 @@
 
 Coffee Cupping & Tasting Tracker - A mobile app for professional coffee tasting sessions.
 
-## 🚀 Technology Stack
+## 🚀 Quick Start
+
+**New to the project?** Check out the **[Getting Started Guide](GETTING_STARTED.md)** for step-by-step instructions on how to run the app.
+
+**Quick start for developers:**
+```bash
+git clone https://github.com/Horton06/Cupping-app.git
+cd Cupping-app
+npm install
+npm start
+```
+Then scan the QR code with the Expo Go app on your phone!
+
+## 🛠️ Technology Stack
 
 - **Framework**: Expo (React Native)
 - **Language**: TypeScript (strict mode)
@@ -64,6 +77,7 @@ npm run lint
 - [x] Session notes and tags
 - [x] Session history with search and filters
 - [x] Multi-coffee comparison with radar charts
+- [x] Table cupping mode with uniformity analysis
 - [x] Flavor wheel reference browser
 
 ### Technical Implementation
