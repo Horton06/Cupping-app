@@ -50,10 +50,22 @@ export const TextInput: React.FC<TextInputProps> = ({
         multiline={multiline}
         numberOfLines={multiline ? numberOfLines : 1}
         textAlignVertical={multiline ? 'top' : 'center'}
+        accessible={true}
+        accessibilityLabel={props.accessibilityLabel || label}
+        accessibilityHint={props.accessibilityHint}
+        accessibilityState={{ disabled }}
         {...props}
       />
-      {error && <Text style={styles.errorText}>{error}</Text>}
-      {!error && helperText && <Text style={styles.helperText}>{helperText}</Text>}
+      {error && (
+        <Text style={styles.errorText} accessible={true} accessibilityRole="alert">
+          {error}
+        </Text>
+      )}
+      {!error && helperText && (
+        <Text style={styles.helperText} accessible={true}>
+          {helperText}
+        </Text>
+      )}
     </View>
   );
 };
