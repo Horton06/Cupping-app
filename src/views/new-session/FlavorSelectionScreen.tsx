@@ -41,9 +41,19 @@ export const FlavorSelectionScreen: React.FC = () => {
     const loadFlavors = async () => {
       try {
         setIsLoading(true);
-        await sessionService.getSession(sessionId);
-        // TODO: Load cup flavors from session and set as initial selection
-        // For now, just mark as loaded
+        const session = await sessionService.getSession(sessionId);
+
+        if (session) {
+          // Find the cup and load its flavors
+          for (const coffee of session.coffees) {
+            const cup = coffee.cups.find(c => c.cupId === cupId);
+            if (cup) {
+              // Load existing flavors, or start fresh
+              setSelectedFlavors(cup.flavors || []);
+              break;
+            }
+          }
+        }
       } catch (error) {
         console.error('[FlavorSelection] Error loading flavors:', error);
       } finally {

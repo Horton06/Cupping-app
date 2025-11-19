@@ -70,9 +70,10 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
   const isPanning = useSharedValue(false);
   const panDistance = useSharedValue(0);
 
-  // Pan gesture
+  // Pan gesture with minimum distance to activate
   const panGesture = Gesture.Pan()
-    .onBegin(() => {
+    .minDistance(5) // Require 5px movement to activate pan
+    .onStart(() => {
       isPanning.value = true;
       panDistance.value = 0;
     })
@@ -87,7 +88,7 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
       // Track total pan distance to distinguish from taps
       panDistance.value += Math.abs(event.changeX) + Math.abs(event.changeY);
     })
-    .onEnd(() => {
+    .onFinalize(() => {
       isPanning.value = false;
     });
 

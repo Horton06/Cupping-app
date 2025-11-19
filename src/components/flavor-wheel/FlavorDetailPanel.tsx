@@ -56,6 +56,8 @@ const SelectedFlavorItem: React.FC<{
   const translateX = useSharedValue(0);
 
   const panGesture = Gesture.Pan()
+    .activeOffsetX([-10, 10]) // Require horizontal movement
+    .failOffsetY([-10, 10]) // Fail if mostly vertical
     .onChange((event) => {
       // Only allow left swipe
       translateX.value = Math.min(0, event.translationX);
