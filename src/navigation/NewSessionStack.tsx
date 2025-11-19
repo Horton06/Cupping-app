@@ -7,10 +7,16 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import type { NewSessionStackParamList } from './types';
-import { SessionTypeSelectScreen } from '@/screens/new-session/SessionTypeSelectScreen';
-import { CoffeeSetupScreen } from '@/screens/new-session/CoffeeSetupScreen';
-import { FlavorSelectionScreen } from '@/screens/new-session/FlavorSelectionScreen';
-import { StructureScoringScreen } from '@/screens/new-session/StructureScoringScreen';
+// TEMPORARY: Commented out to test Metro
+// import { SessionTypeSelectScreen } from '@/screens/new-session/SessionTypeSelectScreen';
+// import { CoffeeSetupScreen } from '@/screens/new-session/CoffeeSetupScreen';
+// import { FlavorSelectionScreen } from '@/screens/new-session/FlavorSelectionScreen';
+// import { StructureScoringScreen } from '@/screens/new-session/StructureScoringScreen';
+import { View, Text } from 'react-native';
+const SessionTypeSelectScreen = () => <View><Text>Session Type Select Placeholder</Text></View>;
+const CoffeeSetupScreen = () => <View><Text>Coffee Setup Placeholder</Text></View>;
+const FlavorSelectionScreen = () => <View><Text>Flavor Selection Placeholder</Text></View>;
+const StructureScoringScreen = () => <View><Text>Structure Scoring Placeholder</Text></View>;
 import { colors, typography } from '../theme';
 
 const Stack = createStackNavigator<NewSessionStackParamList>();

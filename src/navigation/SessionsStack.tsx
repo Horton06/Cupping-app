@@ -7,8 +7,12 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import type { SessionsStackParamList } from './types';
-import { SessionsListScreen } from '@/screens/sessions/SessionsListScreen';
-import { SessionDetailScreen } from '@/screens/sessions/SessionDetailScreen';
+// TEMPORARY: Commented out to test Metro
+// import { SessionsListScreen } from '@/screens/sessions/SessionsListScreen';
+// import { SessionDetailScreen } from '@/screens/sessions/SessionDetailScreen';
+import { View, Text } from 'react-native';
+const SessionsListScreen = () => <View><Text>Sessions List Placeholder</Text></View>;
+const SessionDetailScreen = () => <View><Text>Session Detail Placeholder</Text></View>;
 import { colors, typography } from '../theme';
 
 const Stack = createStackNavigator<SessionsStackParamList>();
