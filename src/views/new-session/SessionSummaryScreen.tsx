@@ -302,18 +302,20 @@ export const SessionSummaryScreen: React.FC = () => {
 
       {/* Actions */}
       <View style={styles.actions}>
-        <Button
-          title="Duplicate"
-          onPress={handleDuplicate}
-          loading={duplicating}
-          variant="secondary"
-          style={styles.actionButton}
-        />
-        <Button
-          title="Finish"
-          onPress={handleFinish}
-          style={styles.actionButton}
-        />
+        <View style={styles.actionsInner}>
+          <Button
+            title="Duplicate"
+            onPress={handleDuplicate}
+            loading={duplicating}
+            variant="secondary"
+            style={styles.actionButton}
+          />
+          <Button
+            title="Finish"
+            onPress={handleFinish}
+            style={styles.actionButton}
+          />
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -423,13 +425,15 @@ const styles = StyleSheet.create({
   tagsList: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.sm,
+    marginHorizontal: -spacing.sm / 2,
   },
   tag: {
     backgroundColor: colors.primary + '20',
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.sm,
     borderRadius: spacing.sm,
+    marginHorizontal: spacing.sm / 2,
+    marginBottom: spacing.sm,
   },
   tagText: {
     ...typography.bodySmall,
@@ -465,14 +469,17 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   actions: {
-    flexDirection: 'row',
     padding: spacing.lg,
     borderTopWidth: 1,
     borderTopColor: colors.border,
     backgroundColor: colors.surface,
-    gap: spacing.md,
+  },
+  actionsInner: {
+    flexDirection: 'row',
+    marginHorizontal: -spacing.md / 2,
   },
   actionButton: {
     flex: 1,
+    marginHorizontal: spacing.md / 2,
   },
 });
