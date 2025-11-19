@@ -7,16 +7,10 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import type { SettingsStackParamList } from './types';
-// TEMPORARY: Commented out to test Metro
-// import { SettingsHomeScreen } from '@/screens/settings/SettingsHomeScreen';
-// import { DataManagementScreen } from '@/screens/settings/DataManagementScreen';
-// import { SettingsScreen } from '@/screens/settings/SettingsScreen';
-// import { FlavorWheelReferenceScreen } from '@/screens/settings/FlavorWheelReferenceScreen';
-import { View, Text } from 'react-native';
-const SettingsHomeScreen = () => <View><Text>Settings Home Placeholder</Text></View>;
-const DataManagementScreen = () => <View><Text>Data Management Placeholder</Text></View>;
-const SettingsScreen = () => <View><Text>Settings Placeholder</Text></View>;
-const FlavorWheelReferenceScreen = () => <View><Text>Flavor Wheel Placeholder</Text></View>;
+import { SettingsHomeScreen } from '@/views/settings/SettingsHomeScreen';
+import { DataManagementScreen } from '@/views/settings/DataManagementScreen';
+import { SettingsScreen } from '@/views/settings/SettingsScreen';
+import { FlavorWheelReferenceScreen } from '@/views/settings/FlavorWheelReferenceScreen';
 import { colors, typography } from '../theme';
 
 const Stack = createStackNavigator<SettingsStackParamList>();

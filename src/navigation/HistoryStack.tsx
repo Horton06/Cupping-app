@@ -7,21 +7,11 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import type { HistoryStackParamList } from './types';
-import { TEST_VALUE } from '../TEST_FILE';
-// Try importing from the NEW views directory instead of screens
-import { HistoryListScreen as RealHistoryListScreen } from '@/views/history/HistoryListScreen';
-// TEMPORARY: Commented out to test Metro
-// import { TableCuppingScreen } from '@/screens/history/TableCuppingScreen';
-// import { SessionDetailScreen } from '@/screens/sessions/SessionDetailScreen';
-// import { ComparisonScreen } from '@/screens/comparison/ComparisonScreen';
-import { View, Text } from 'react-native';
-const HistoryListScreen = RealHistoryListScreen; // Use the real one!
-const TableCuppingScreen = () => <View><Text>Table Cupping Placeholder</Text></View>;
-const SessionDetailScreen = () => <View><Text>Session Detail Placeholder</Text></View>;
-const ComparisonScreen = () => <View><Text>Comparison Placeholder</Text></View>;
+import { HistoryListScreen } from '@/views/history/HistoryListScreen';
+import { TableCuppingScreen } from '@/views/history/TableCuppingScreen';
+import { SessionDetailScreen } from '@/views/sessions/SessionDetailScreen';
+import { ComparisonScreen } from '@/views/comparison/ComparisonScreen';
 import { colors, typography } from '../theme';
-
-console.log('TEST_VALUE:', TEST_VALUE);
 
 const Stack = createStackNavigator<HistoryStackParamList>();
 
