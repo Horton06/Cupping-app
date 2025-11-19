@@ -7,10 +7,9 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import type { HistoryStackParamList } from './types';
-import { HistoryListScreen } from '../screens/history/HistoryListScreen';
-import { SessionDetailScreen } from '../screens/sessions/SessionDetailScreen';
-import { ComparisonScreen } from '../screens/comparison/ComparisonScreen';
-import { TableCuppingScreen } from '../screens/history/TableCuppingScreen';
+import { HistoryListScreen, TableCuppingScreen } from '../screens/history';
+import { SessionDetailScreen } from '../screens/sessions';
+import { ComparisonScreen } from '../screens/comparison';
 import { colors, typography } from '../theme';
 
 const Stack = createStackNavigator<HistoryStackParamList>();
