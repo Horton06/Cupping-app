@@ -11,12 +11,13 @@
 
 import React, { useCallback } from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
-import { GestureDetector, Gesture } from 'react-native-gesture-handler';
+import { GestureDetector, Gesture, GestureStateChangeEvent, TapGestureHandlerEventPayload } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedStyle,
   useAnimatedProps,
   withSpring,
   useSharedValue,
+  runOnJS,
 } from 'react-native-reanimated';
 import Svg, { Circle, Text as SvgText, G } from 'react-native-svg';
 import { FlavorBubble } from './FlavorBubble';
@@ -69,6 +70,47 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
 
   const isPanning = useSharedValue(false);
   const panDistance = useSharedValue(0);
+
+  // Handle tap on the wheel - find and toggle flavor
+  const handleTap = useCallback((screenX: number, screenY: number, svgViewBoxX: number, svgViewBoxY: number, svgViewBoxWidth: number, svgViewBoxHeight: number) => {
+    // Convert screen coordinates to SVG coordinates
+    const svgX = svgViewBoxX + (screenX / SCREEN_WIDTH) * svgViewBoxWidth;
+    const svgY = svgViewBoxY + (screenY / SCREEN_HEIGHT) * svgViewBoxHeight;
+
+    console.log('[FlavorWheel] Tap at screen:', screenX, screenY, '→ SVG:', svgX, svgY);
+
+    // Find bubble at this position
+    for (const position of bubblePositions) {
+      const dx = svgX - (position.x || 0);
+      const dy = svgY - (position.y || 0);
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance <= BUBBLE_RADIUS) {
+        const flavor = flavorMap.get(position.number);
+        if (flavor) {
+          console.log('[FlavorWheel] Found flavor:', flavor.name, 'at distance:', distance);
+          toggleFlavor(flavor);
+          return;
+        }
+      }
+    }
+    console.log('[FlavorWheel] No flavor found at tap position');
+  }, [bubblePositions, flavorMap, toggleFlavor]);
+
+  // Tap gesture for selecting flavors
+  const tapGesture = Gesture.Tap()
+    .maxDuration(250)
+    .onEnd((event) => {
+      'worklet';
+      runOnJS(handleTap)(
+        event.x,
+        event.y,
+        viewBoxX.value,
+        viewBoxY.value,
+        viewBoxWidth.value,
+        viewBoxHeight.value
+      );
+    });
 
   // Pan gesture with minimum distance to activate
   const panGesture = Gesture.Pan()
@@ -125,8 +167,9 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
       });
     });
 
-  // Compose gestures
-  const composedGesture = Gesture.Simultaneous(panGesture, pinchGesture);
+  // Compose gestures - Tap and Pan are exclusive (one or the other), Pinch runs simultaneously
+  const tapOrPan = Gesture.Exclusive(tapGesture, panGesture);
+  const composedGesture = Gesture.Simultaneous(tapOrPan, pinchGesture);
 
   // Animated SVG viewBox props
   const animatedProps = useAnimatedProps(() => ({
@@ -138,15 +181,6 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT,
   }));
-
-  // Handle bubble press - only register if it wasn't a pan
-  const handleBubblePress = useCallback((flavor: Flavor, currentPanDistance: number) => {
-    // If pan distance is small (< 10px), it was a tap not a pan
-    if (currentPanDistance < 10) {
-      console.log('[FlavorWheel] Bubble pressed:', flavor.name);
-      toggleFlavor(flavor);
-    }
-  }, [toggleFlavor]);
 
   console.log(`[FlavorWheel] Rendering ${bubblePositions.length} bubbles`);
   console.log('[FlavorWheel] ViewBox:', `${viewBoxX.value},${viewBoxY.value} ${viewBoxWidth.value}x${viewBoxHeight.value}`);
@@ -237,9 +271,7 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
                 radius={BUBBLE_RADIUS}
                 isSelected={isSelected}
                 intensity={intensity}
-                onPress={() => {
-                  handleBubblePress(flavor, panDistance.value);
-                }}
+                onPress={() => {}} // No-op: taps handled by gesture detector
               />
             );
           })}
