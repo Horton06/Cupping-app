@@ -8,7 +8,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import type { StructureScoringRouteProp } from '../../navigation/types';
+import type { StructureScoringRouteProp, NewSessionNavigationProp } from '../../navigation/types';
 import type { StructuralScores, ScoreValue } from '../../types/session.types';
 import { ScoreSlider, Button, LoadingSpinner, Divider } from '../../components';
 import { sessionService } from '../../services/sessionService';
@@ -69,11 +69,14 @@ const SCORE_ATTRIBUTES: ScoreAttribute[] = [
 
 export const StructureScoringScreen: React.FC = () => {
   const route = useRoute<StructureScoringRouteProp>();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NewSessionNavigationProp>();
   const { sessionId, cupId } = route.params;
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [hasMoreCoffees, setHasMoreCoffees] = useState(false);
+  const [coffeeNumber, setCoffeeNumber] = useState(1);
+  const [totalCoffees, setTotalCoffees] = useState(1);
 
   // Score state - initialize with default values
   const [scores, setScores] = useState<StructuralScores>({
@@ -85,7 +88,7 @@ export const StructureScoringScreen: React.FC = () => {
     enjoyment: 3,
   });
 
-  // Load existing scores
+  // Load existing scores and check progress
   useEffect(() => {
     const loadScores = async () => {
       try {
@@ -93,15 +96,24 @@ export const StructureScoringScreen: React.FC = () => {
         const session = await sessionService.getSession(sessionId);
 
         if (session) {
-          // Find the cup in the session
-          for (const coffee of session.coffees) {
+          setTotalCoffees(session.coffees.length);
+
+          // Find the cup in the session and determine position
+          let currentCoffeeIndex = -1;
+          for (let i = 0; i < session.coffees.length; i++) {
+            const coffee = session.coffees[i];
             const cup = coffee.cups.find(c => c.cupId === cupId);
             if (cup) {
               // Load existing scores
               setScores(cup.ratings);
+              currentCoffeeIndex = i;
+              setCoffeeNumber(i + 1);
               break;
             }
           }
+
+          // Check if there are more coffees after this one
+          setHasMoreCoffees(currentCoffeeIndex >= 0 && currentCoffeeIndex < session.coffees.length - 1);
         }
       } catch (error) {
         console.error('[StructureScoring] Error loading scores:', error);
@@ -118,7 +130,7 @@ export const StructureScoringScreen: React.FC = () => {
     setScores(prev => ({ ...prev, [key]: value }));
   }, []);
 
-  // Save scores and continue
+  // Save scores and continue to next coffee or summary
   const handleSave = useCallback(async () => {
     try {
       setIsSaving(true);
@@ -126,15 +138,47 @@ export const StructureScoringScreen: React.FC = () => {
       // Save scores to database
       await sessionService.updateCupScores(cupId, scores);
 
-      // Navigate back to sessions list
-      // TODO: Navigate to summary or next step based on session flow
-      navigation.goBack();
+      // Get session to check for next coffee
+      const session = await sessionService.getSession(sessionId);
+      if (!session) {
+        console.error('[StructureScoring] Session not found');
+        navigation.goBack();
+        return;
+      }
+
+      // Find current coffee index
+      let currentCoffeeIndex = -1;
+      for (let i = 0; i < session.coffees.length; i++) {
+        const coffee = session.coffees[i];
+        const cupExists = coffee.cups.some(c => c.cupId === cupId);
+        if (cupExists) {
+          currentCoffeeIndex = i;
+          break;
+        }
+      }
+
+      // Check if there's a next coffee
+      const nextCoffeeIndex = currentCoffeeIndex + 1;
+      if (nextCoffeeIndex < session.coffees.length) {
+        // Navigate to next coffee's flavor selection
+        const nextCoffee = session.coffees[nextCoffeeIndex];
+        const nextCup = nextCoffee.cups[0]; // Use first cup of next coffee
+
+        navigation.navigate('FlavorSelection', {
+          sessionId,
+          coffeeId: nextCoffee.coffeeId,
+          cupId: nextCup.cupId,
+        });
+      } else {
+        // All coffees complete - navigate to session summary
+        navigation.navigate('SessionSummary', { sessionId });
+      }
     } catch (error) {
       console.error('[StructureScoring] Error saving scores:', error);
     } finally {
       setIsSaving(false);
     }
-  }, [cupId, scores, navigation]);
+  }, [cupId, scores, sessionId, navigation]);
 
   if (isLoading) {
     return (
@@ -155,7 +199,7 @@ export const StructureScoringScreen: React.FC = () => {
         <View style={styles.header}>
           <Text style={styles.title}>Rate Structural Attributes</Text>
           <Text style={styles.subtitle}>
-            Score each attribute on a scale of 1 (low) to 5 (high)
+            Coffee {coffeeNumber} of {totalCoffees} • Score each attribute on a scale of 1-5
           </Text>
         </View>
 
@@ -201,7 +245,7 @@ export const StructureScoringScreen: React.FC = () => {
       {/* Actions */}
       <View style={styles.actions}>
         <Button
-          title="Save & Continue"
+          title={hasMoreCoffees ? `Continue to Coffee ${coffeeNumber + 1}` : 'Finish Session'}
           onPress={handleSave}
           loading={isSaving}
           fullWidth

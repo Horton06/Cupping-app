@@ -11,6 +11,7 @@ import { SessionTypeSelectScreen } from '@/views/new-session/SessionTypeSelectSc
 import { CoffeeSetupScreen } from '@/views/new-session/CoffeeSetupScreen';
 import { FlavorSelectionScreen } from '@/views/new-session/FlavorSelectionScreen';
 import { StructureScoringScreen } from '@/views/new-session/StructureScoringScreen';
+import { SessionSummaryScreen } from '@/views/new-session/SessionSummaryScreen';
 import { colors, typography } from '../theme';
 
 const Stack = createStackNavigator<NewSessionStackParamList>();
@@ -58,14 +59,13 @@ export const NewSessionStack: React.FC = () => {
         options={{ title: 'Rate Structure' }}
       />
       <Stack.Screen
-        name="SessionNotes"
-        component={FlavorSelectionScreen} // Placeholder
-        options={{ title: 'Notes' }}
-      />
-      <Stack.Screen
         name="SessionSummary"
-        component={FlavorSelectionScreen} // Placeholder
-        options={{ title: 'Summary' }}
+        component={SessionSummaryScreen}
+        options={{
+          title: 'Summary',
+          headerLeft: () => null, // Disable back button on summary
+          gestureEnabled: false, // Disable swipe back
+        }}
       />
     </Stack.Navigator>
   );

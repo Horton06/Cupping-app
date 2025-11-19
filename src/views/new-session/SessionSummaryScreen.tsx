@@ -98,7 +98,7 @@ export const SessionSummaryScreen: React.FC = () => {
   }, [session, sessionId, navigation]);
 
   const handleFinish = useCallback(() => {
-    // Navigate to history/home
+    // Navigate to history or start new session
     Alert.alert(
       'Session Saved',
       'Your tasting session has been saved successfully!',
@@ -106,13 +106,16 @@ export const SessionSummaryScreen: React.FC = () => {
         {
           text: 'View History',
           onPress: () => {
-            // TODO: Navigate to history tab
-            navigation.navigate('SessionTypeSelect');
+            // Navigate to History tab
+            navigation.getParent()?.navigate('HistoryTab');
           },
         },
         {
           text: 'Start New Session',
-          onPress: () => navigation.navigate('SessionTypeSelect'),
+          onPress: () => {
+            // Navigate back to start of new session flow
+            navigation.navigate('SessionTypeSelect');
+          },
         },
       ]
     );
