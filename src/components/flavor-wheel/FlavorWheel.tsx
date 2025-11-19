@@ -13,6 +13,7 @@ import { Dimensions, StyleSheet } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedStyle,
+  useAnimatedProps,
   withSpring,
   useSharedValue,
 } from 'react-native-reanimated';
@@ -21,6 +22,9 @@ import { FlavorBubble } from './FlavorBubble';
 import { useFlavorWheel } from './useFlavorWheel';
 import type { Flavor, SelectedFlavor } from '../../types/flavor.types';
 import { colors } from '../../theme';
+
+// Create animated SVG component
+const AnimatedSvg = Animated.createAnimatedComponent(Svg);
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -128,7 +132,12 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
   // Compose gestures
   const composedGesture = Gesture.Simultaneous(panGesture, pinchGesture);
 
-  // Animated container style (this doesn't affect SVG coordinates, just used for wrapper)
+  // Animated SVG viewBox props
+  const animatedProps = useAnimatedProps(() => ({
+    viewBox: `${viewBoxX.value} ${viewBoxY.value} ${viewBoxWidth.value} ${viewBoxHeight.value}`,
+  }));
+
+  // Animated container style
   const animatedStyle = useAnimatedStyle(() => ({
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT,
@@ -148,10 +157,10 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
   return (
     <GestureDetector gesture={composedGesture}>
       <Animated.View style={[styles.container, animatedStyle]}>
-        <Svg
+        <AnimatedSvg
           width="100%"
           height="100%"
-          viewBox={`${viewBoxX.value} ${viewBoxY.value} ${viewBoxWidth.value} ${viewBoxHeight.value}`}
+          animatedProps={animatedProps}
         >
           {/* Center point marker for debugging */}
           <Circle
@@ -239,7 +248,7 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
               />
             );
           })}
-        </Svg>
+        </AnimatedSvg>
       </Animated.View>
     </GestureDetector>
   );
