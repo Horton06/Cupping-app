@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.sm,
+    marginHorizontal: -spacing.sm / 2,
   },
   empty: {
     paddingVertical: spacing.lg,
@@ -101,7 +101,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     borderWidth: 1,
     borderColor: colors.border,
-    gap: spacing.xs,
+    marginHorizontal: spacing.sm / 2,
+    marginBottom: spacing.sm,
   },
   chipDominant: {
     borderColor: colors.primary,
@@ -112,15 +113,16 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
+    marginRight: spacing.xs,
   },
   flavorName: {
     ...typography.bodySmall,
     color: colors.text.primary,
     fontWeight: '500',
+    marginRight: spacing.xs,
   },
   intensityContainer: {
     flexDirection: 'row',
-    gap: 2,
     marginLeft: spacing.xs,
   },
   intensityDot: {
@@ -128,6 +130,7 @@ const styles = StyleSheet.create({
     height: 4,
     borderRadius: 2,
     backgroundColor: colors.border,
+    marginRight: 2,
   },
   intensityDotActive: {
     backgroundColor: colors.primary,
