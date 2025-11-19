@@ -7,7 +7,8 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import type { SessionsStackParamList } from './types';
-import { SessionsListScreen, SessionDetailScreen } from '../screens/sessions/index';
+import { SessionsListScreen } from '../screens/sessions/SessionsListScreen';
+import { SessionDetailScreen } from '../screens/sessions/SessionDetailScreen';
 import { colors, typography } from '../theme';
 
 const Stack = createStackNavigator<SessionsStackParamList>();

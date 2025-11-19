@@ -7,12 +7,10 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import type { NewSessionStackParamList } from './types';
-import {
-  SessionTypeSelectScreen,
-  CoffeeSetupScreen,
-  FlavorSelectionScreen,
-  StructureScoringScreen,
-} from '../screens/new-session/index';
+import { SessionTypeSelectScreen } from '../screens/new-session/SessionTypeSelectScreen';
+import { CoffeeSetupScreen } from '../screens/new-session/CoffeeSetupScreen';
+import { FlavorSelectionScreen } from '../screens/new-session/FlavorSelectionScreen';
+import { StructureScoringScreen } from '../screens/new-session/StructureScoringScreen';
 import { colors, typography } from '../theme';
 
 const Stack = createStackNavigator<NewSessionStackParamList>();

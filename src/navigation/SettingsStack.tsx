@@ -7,12 +7,10 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import type { SettingsStackParamList } from './types';
-import {
-  SettingsHomeScreen,
-  DataManagementScreen,
-  SettingsScreen,
-  FlavorWheelReferenceScreen,
-} from '../screens/settings/index';
+import { SettingsHomeScreen } from '../screens/settings/SettingsHomeScreen';
+import { DataManagementScreen } from '../screens/settings/DataManagementScreen';
+import { SettingsScreen } from '../screens/settings/SettingsScreen';
+import { FlavorWheelReferenceScreen } from '../screens/settings/FlavorWheelReferenceScreen';
 import { colors, typography } from '../theme';
 
 const Stack = createStackNavigator<SettingsStackParamList>();
