@@ -68,15 +68,13 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
   const viewBoxHeight = useSharedValue(INITIAL_VIEW_SIZE);
 
   const isPanning = useSharedValue(false);
-  const lastPanX = useSharedValue(0);
-  const lastPanY = useSharedValue(0);
+  const panDistance = useSharedValue(0);
 
   // Pan gesture
   const panGesture = Gesture.Pan()
     .onBegin(() => {
       isPanning.value = true;
-      lastPanX.value = 0;
-      lastPanY.value = 0;
+      panDistance.value = 0;
     })
     .onChange((event) => {
       // Convert screen delta to SVG delta (accounting for current zoom)
@@ -86,15 +84,11 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
       viewBoxX.value += svgDeltaX;
       viewBoxY.value += svgDeltaY;
 
-      lastPanX.value = svgDeltaX;
-      lastPanY.value = svgDeltaY;
+      // Track total pan distance to distinguish from taps
+      panDistance.value += Math.abs(event.changeX) + Math.abs(event.changeY);
     })
     .onEnd(() => {
-      // Small delay to prevent tap from firing after pan
-      setTimeout(() => {
-        'worklet';
-        isPanning.value = false;
-      }, 100);
+      isPanning.value = false;
     });
 
   // Pinch gesture for zoom
@@ -144,13 +138,14 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
     height: SCREEN_HEIGHT,
   }));
 
-  // Handle bubble press - check if we're not panning
-  const handleBubblePress = useCallback((flavor: Flavor) => {
-    if (!isPanning.value) {
+  // Handle bubble press - only register if it wasn't a pan
+  const handleBubblePress = useCallback((flavor: Flavor, currentPanDistance: number) => {
+    // If pan distance is small (< 10px), it was a tap not a pan
+    if (currentPanDistance < 10) {
       console.log('[FlavorWheel] Bubble pressed:', flavor.name);
       toggleFlavor(flavor);
     }
-  }, [toggleFlavor, isPanning]);
+  }, [toggleFlavor]);
 
   console.log(`[FlavorWheel] Rendering ${bubblePositions.length} bubbles`);
   console.log('[FlavorWheel] ViewBox:', `${viewBoxX.value},${viewBoxY.value} ${viewBoxWidth.value}x${viewBoxHeight.value}`);
@@ -242,9 +237,7 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
                 isSelected={isSelected}
                 intensity={intensity}
                 onPress={() => {
-                  if (!isPanning.value) {
-                    handleBubblePress(flavor);
-                  }
+                  handleBubblePress(flavor, panDistance.value);
                 }}
               />
             );
