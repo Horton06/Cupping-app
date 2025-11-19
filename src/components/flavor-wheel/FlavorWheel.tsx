@@ -11,7 +11,7 @@
 
 import React, { useCallback } from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
-import { GestureDetector, Gesture, GestureStateChangeEvent, TapGestureHandlerEventPayload } from 'react-native-gesture-handler';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedStyle,
   useAnimatedProps,
@@ -70,6 +70,8 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
 
   const isPanning = useSharedValue(false);
   const panDistance = useSharedValue(0);
+  const startX = useSharedValue(0);
+  const startY = useSharedValue(0);
 
   // Handle tap on the wheel - find and toggle flavor
   const handleTap = useCallback((screenX: number, screenY: number, svgViewBoxX: number, svgViewBoxY: number, svgViewBoxWidth: number, svgViewBoxHeight: number) => {
@@ -97,41 +99,50 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
     console.log('[FlavorWheel] No flavor found at tap position');
   }, [bubblePositions, flavorMap, toggleFlavor]);
 
-  // Tap gesture for selecting flavors
-  const tapGesture = Gesture.Tap()
-    .maxDuration(250)
-    .onEnd((event) => {
-      'worklet';
-      runOnJS(handleTap)(
-        event.x,
-        event.y,
-        viewBoxX.value,
-        viewBoxY.value,
-        viewBoxWidth.value,
-        viewBoxHeight.value
-      );
-    });
-
-  // Pan gesture with minimum distance to activate
+  // Pan gesture - also handles taps
   const panGesture = Gesture.Pan()
-    .minDistance(5) // Require 5px movement to activate pan
-    .onStart(() => {
-      isPanning.value = true;
+    .onBegin((event) => {
+      'worklet';
+      startX.value = event.x;
+      startY.value = event.y;
       panDistance.value = 0;
+      isPanning.value = false;
     })
     .onChange((event) => {
-      // Convert screen delta to SVG delta (accounting for current zoom)
-      const svgDeltaX = -event.changeX * (viewBoxWidth.value / SCREEN_WIDTH);
-      const svgDeltaY = -event.changeY * (viewBoxHeight.value / SCREEN_HEIGHT);
-
-      viewBoxX.value += svgDeltaX;
-      viewBoxY.value += svgDeltaY;
-
-      // Track total pan distance to distinguish from taps
+      'worklet';
+      // Track total distance moved
       panDistance.value += Math.abs(event.changeX) + Math.abs(event.changeY);
+
+      // Only pan if moved more than 10px total
+      if (panDistance.value > 10) {
+        isPanning.value = true;
+
+        // Convert screen delta to SVG delta (accounting for current zoom)
+        const svgDeltaX = -event.changeX * (viewBoxWidth.value / SCREEN_WIDTH);
+        const svgDeltaY = -event.changeY * (viewBoxHeight.value / SCREEN_HEIGHT);
+
+        viewBoxX.value += svgDeltaX;
+        viewBoxY.value += svgDeltaY;
+      }
     })
-    .onFinalize(() => {
+    .onEnd((event) => {
+      'worklet';
+      // If didn't move much, it was a tap
+      if (panDistance.value < 10) {
+        console.log('[FlavorWheel] Detected tap, distance:', panDistance.value);
+        runOnJS(handleTap)(
+          event.x,
+          event.y,
+          viewBoxX.value,
+          viewBoxY.value,
+          viewBoxWidth.value,
+          viewBoxHeight.value
+        );
+      } else {
+        console.log('[FlavorWheel] Detected pan, distance:', panDistance.value);
+      }
       isPanning.value = false;
+      panDistance.value = 0;
     });
 
   // Pinch gesture for zoom
@@ -167,9 +178,8 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
       });
     });
 
-  // Compose gestures - Tap and Pan are exclusive (one or the other), Pinch runs simultaneously
-  const tapOrPan = Gesture.Exclusive(tapGesture, panGesture);
-  const composedGesture = Gesture.Simultaneous(tapOrPan, pinchGesture);
+  // Compose gestures - Pan handles both taps and drags, Pinch runs simultaneously
+  const composedGesture = Gesture.Simultaneous(panGesture, pinchGesture);
 
   // Animated SVG viewBox props
   const animatedProps = useAnimatedProps(() => ({
