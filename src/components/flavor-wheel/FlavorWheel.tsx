@@ -25,9 +25,6 @@ import { useFlavorWheel } from './useFlavorWheel';
 import type { Flavor, SelectedFlavor } from '../../types/flavor.types';
 import { colors } from '../../theme';
 
-// Create animated SVG component
-const AnimatedSvg = Animated.createAnimatedComponent(Svg);
-
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const CANVAS_SIZE = 900; // Size of the flavor wheel canvas
@@ -62,24 +59,19 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
     maxSelections,
   });
 
-  // ViewBox in SVG coordinates - start centered on the canvas
-  const viewBoxX = useSharedValue(CANVAS_CENTER - INITIAL_VIEW_SIZE / 2);
-  const viewBoxY = useSharedValue(CANVAS_CENTER - INITIAL_VIEW_SIZE / 2);
-  const viewBoxWidth = useSharedValue(INITIAL_VIEW_SIZE);
-  const viewBoxHeight = useSharedValue(INITIAL_VIEW_SIZE);
-
-  const isPanning = useSharedValue(false);
+  // Transform values for pan and zoom (simpler than animating viewBox)
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const scale = useSharedValue(1);
   const panDistance = useSharedValue(0);
-  const startX = useSharedValue(0);
-  const startY = useSharedValue(0);
 
   // Handle tap on the wheel - find and toggle flavor
-  const handleTap = useCallback((screenX: number, screenY: number, svgViewBoxX: number, svgViewBoxY: number, svgViewBoxWidth: number, svgViewBoxHeight: number) => {
-    // Convert screen coordinates to SVG coordinates
-    const svgX = svgViewBoxX + (screenX / SCREEN_WIDTH) * svgViewBoxWidth;
-    const svgY = svgViewBoxY + (screenY / SCREEN_HEIGHT) * svgViewBoxHeight;
+  const handleTap = useCallback((screenX: number, screenY: number, currentScale: number, currentTranslateX: number, currentTranslateY: number) => {
+    // Convert screen coordinates to SVG coordinates accounting for transform
+    const svgX = (screenX - SCREEN_WIDTH / 2 - currentTranslateX) / currentScale + CANVAS_CENTER;
+    const svgY = (screenY - SCREEN_HEIGHT / 2 - currentTranslateY) / currentScale + CANVAS_CENTER;
 
-    console.log('[FlavorWheel] Tap at screen:', screenX, screenY, '→ SVG:', svgX, svgY);
+    console.log('[FlavorWheel] Tap at screen:', screenX, screenY, '→ SVG:', svgX, svgY, 'scale:', currentScale);
 
     // Find bubble at this position
     for (const position of bubblePositions) {
@@ -103,10 +95,7 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
   const panGesture = Gesture.Pan()
     .onBegin((event) => {
       'worklet';
-      startX.value = event.x;
-      startY.value = event.y;
       panDistance.value = 0;
-      isPanning.value = false;
     })
     .onChange((event) => {
       'worklet';
@@ -115,14 +104,10 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
 
       // Only pan if moved more than 10px total
       if (panDistance.value > 10) {
-        isPanning.value = true;
-
-        // Convert screen delta to SVG delta (accounting for current zoom)
-        const svgDeltaX = -event.changeX * (viewBoxWidth.value / SCREEN_WIDTH);
-        const svgDeltaY = -event.changeY * (viewBoxHeight.value / SCREEN_HEIGHT);
-
-        viewBoxX.value += svgDeltaX;
-        viewBoxY.value += svgDeltaY;
+        // Update translation directly (no viewBox conversion needed)
+        translateX.value += event.changeX;
+        translateY.value += event.changeY;
+        console.log('[FlavorWheel] Panning, translate:', translateX.value, translateY.value);
       }
     })
     .onEnd((event) => {
@@ -133,46 +118,29 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
         runOnJS(handleTap)(
           event.x,
           event.y,
-          viewBoxX.value,
-          viewBoxY.value,
-          viewBoxWidth.value,
-          viewBoxHeight.value
+          scale.value,
+          translateX.value,
+          translateY.value
         );
       } else {
-        console.log('[FlavorWheel] Detected pan, distance:', panDistance.value);
+        console.log('[FlavorWheel] Detected pan, distance:', panDistance.value, 'final translate:', translateX.value, translateY.value);
       }
-      isPanning.value = false;
       panDistance.value = 0;
     });
 
   // Pinch gesture for zoom
   const pinchGesture = Gesture.Pinch()
     .onChange((event) => {
-      const centerX = viewBoxX.value + viewBoxWidth.value / 2;
-      const centerY = viewBoxY.value + viewBoxHeight.value / 2;
-
-      const newWidth = viewBoxWidth.value / event.scale;
-      const newHeight = viewBoxHeight.value / event.scale;
-
-      // Clamp zoom level
-      const minSize = CANVAS_SIZE / MAX_SCALE;
-      const maxSize = CANVAS_SIZE / MIN_SCALE;
-      const clampedWidth = Math.max(minSize, Math.min(maxSize, newWidth));
-      const clampedHeight = Math.max(minSize, Math.min(maxSize, newHeight));
-
-      viewBoxWidth.value = clampedWidth;
-      viewBoxHeight.value = clampedHeight;
-
-      // Keep zoom centered on pinch point
-      viewBoxX.value = centerX - clampedWidth / 2;
-      viewBoxY.value = centerY - clampedHeight / 2;
+      'worklet';
+      // Update scale directly
+      const newScale = scale.value * event.scale;
+      const clampedScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newScale));
+      scale.value = clampedScale;
+      console.log('[FlavorWheel] Pinching, scale:', scale.value);
     })
     .onEnd(() => {
-      viewBoxWidth.value = withSpring(viewBoxWidth.value, {
-        damping: 20,
-        stiffness: 90,
-      });
-      viewBoxHeight.value = withSpring(viewBoxHeight.value, {
+      'worklet';
+      scale.value = withSpring(scale.value, {
         damping: 20,
         stiffness: 90,
       });
@@ -181,111 +149,109 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
   // Compose gestures - Pan handles both taps and drags, Pinch runs simultaneously
   const composedGesture = Gesture.Simultaneous(panGesture, pinchGesture);
 
-  // Animated SVG viewBox props
-  const animatedProps = useAnimatedProps(() => ({
-    viewBox: `${viewBoxX.value} ${viewBoxY.value} ${viewBoxWidth.value} ${viewBoxHeight.value}`,
-  }));
-
-  // Animated container style
-  const animatedStyle = useAnimatedStyle(() => ({
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
-  }));
-
   console.log(`[FlavorWheel] Rendering ${bubblePositions.length} bubbles`);
-  console.log('[FlavorWheel] ViewBox:', `${viewBoxX.value},${viewBoxY.value} ${viewBoxWidth.value}x${viewBoxHeight.value}`);
+
+  // Animated G element
+  const AnimatedG = Animated.createAnimatedComponent(G);
+
+  // Animated props for the G transform
+  const groupAnimatedProps = useAnimatedProps(() => ({
+    transform: `translate(${CANVAS_CENTER + translateX.value / scale.value},${CANVAS_CENTER + translateY.value / scale.value}) scale(${scale.value})`,
+  }));
 
   return (
     <GestureDetector gesture={composedGesture}>
-      <Animated.View style={[styles.container, animatedStyle]}>
-        <AnimatedSvg
+      <Animated.View style={styles.container}>
+        <Svg
           width="100%"
           height="100%"
-          animatedProps={animatedProps}
+          viewBox={`0 0 ${CANVAS_SIZE} ${CANVAS_SIZE}`}
         >
-          {/* Center point marker for debugging */}
-          <Circle
-            cx={CANVAS_CENTER}
-            cy={CANVAS_CENTER}
-            r={5}
-            fill="red"
-          />
+          <AnimatedG animatedProps={groupAnimatedProps} origin={`${CANVAS_CENTER}, ${CANVAS_CENTER}`}>
+            {/* Center point marker for debugging */}
+            <Circle
+              cx={CANVAS_CENTER}
+              cy={CANVAS_CENTER}
+              r={5}
+              fill="red"
+            />
 
-          {/* Reference circles */}
-          <Circle
-            cx={CANVAS_CENTER}
-            cy={CANVAS_CENTER}
-            r={100}
-            fill="none"
-            stroke="#333"
-            strokeWidth={1}
-          />
-          <Circle
-            cx={CANVAS_CENTER}
-            cy={CANVAS_CENTER}
-            r={300}
-            fill="none"
-            stroke="#333"
-            strokeWidth={1}
-          />
+            {/* Reference circles */}
+            <Circle
+              cx={CANVAS_CENTER}
+              cy={CANVAS_CENTER}
+              r={100}
+              fill="none"
+              stroke="#333"
+              strokeWidth={1}
+            />
+            <Circle
+              cx={CANVAS_CENTER}
+              cy={CANVAS_CENTER}
+              r={300}
+              fill="none"
+              stroke="#333"
+              strokeWidth={1}
+            />
 
-          {/* Center text */}
-          <G>
-            <SvgText
-              x={CANVAS_CENTER}
-              y={CANVAS_CENTER - 10}
-              textAnchor="middle"
-              fontSize={18}
-              fontWeight="bold"
-              fill="#ffffff"
-            >
-              COFFEE FLAVOR
-            </SvgText>
-            <SvgText
-              x={CANVAS_CENTER}
-              y={CANVAS_CENTER + 15}
-              textAnchor="middle"
-              fontSize={16}
-              fill="#ffffff"
-            >
-              WHEEL
-            </SvgText>
-            <SvgText
-              x={CANVAS_CENTER}
-              y={CANVAS_CENTER + 35}
-              textAnchor="middle"
-              fontSize={12}
-              fill="#888888"
-            >
-              Tap any flavor
-            </SvgText>
-          </G>
+            {/* Center text */}
+            <G>
+              <SvgText
+                x={CANVAS_CENTER}
+                y={CANVAS_CENTER - 10}
+                textAnchor="middle"
+                fontSize={18}
+                fontWeight="bold"
+                fill="#ffffff"
+              >
+                COFFEE FLAVOR
+              </SvgText>
+              <SvgText
+                x={CANVAS_CENTER}
+                y={CANVAS_CENTER + 15}
+                textAnchor="middle"
+                fontSize={16}
+                fill="#ffffff"
+              >
+                WHEEL
+              </SvgText>
+              <SvgText
+                x={CANVAS_CENTER}
+                y={CANVAS_CENTER + 35}
+                textAnchor="middle"
+                fontSize={12}
+                fill="#888888"
+              >
+                Tap any flavor
+              </SvgText>
+            </G>
 
-          {/* Render all bubbles */}
-          {bubblePositions.map(position => {
-            const flavor = flavorMap.get(position.number);
-            if (!flavor) {
-              console.warn('[FlavorWheel] No flavor found for position:', position.number);
-              return null;
-            }
+            {/* Render all bubbles */}
+            {bubblePositions.map(position => {
+              const flavor = flavorMap.get(position.number);
+              if (!flavor) {
+                console.warn('[FlavorWheel] No flavor found for position:', position.number);
+                return null;
+              }
 
-            const isSelected = isFlavorSelected(flavor.id);
-            const intensity = getFlavorIntensity(flavor.id);
+              const isSelected = isFlavorSelected(flavor.id);
+              const intensity = getFlavorIntensity(flavor.id);
 
-            return (
-              <FlavorBubble
-                key={position.tempId}
-                flavor={flavor}
-                x={position.x || 0}
-                y={position.y || 0}
-                radius={BUBBLE_RADIUS}
-                isSelected={isSelected}
-                intensity={intensity}
-                onPress={() => {}} // No-op: taps handled by gesture detector
-              />
-            );
-          })}
-        </AnimatedSvg>
+              return (
+                <FlavorBubble
+                  key={position.tempId}
+                  flavor={flavor}
+                  x={position.x || 0}
+                  y={position.y || 0}
+                  radius={BUBBLE_RADIUS}
+                  isSelected={isSelected}
+                  intensity={intensity}
+                  onPress={() => {}} // No-op: taps handled by gesture detector
+                />
+              );
+            })}
+          </AnimatedG>
+        </Svg>
       </Animated.View>
     </GestureDetector>
   );
