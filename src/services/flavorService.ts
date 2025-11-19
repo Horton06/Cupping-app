@@ -16,59 +16,61 @@ import type {
 } from '../types/flavor.types';
 
 /**
- * Concentric Circular Arrangement Algorithm
+ * Honeycomb Ring-Based Arrangement Algorithm
  *
- * Places flavors in expanding circular rings around a center point.
- * Each ring accommodates more bubbles than the previous ring based on
- * circumference calculations.
+ * Places 132 flavors in 4 concentric rings around a void center.
+ * Alternating rings are offset by half an angle step to create
+ * an interlocking honeycomb appearance.
  *
- * NOT hexagonal packing (which would use hex grid coordinates).
- * Concentric circles are simpler and work well for circular canvas.
+ * Ring configuration matches web mockup:
+ * - Ring 1: 24 bubbles at radius 320px
+ * - Ring 2: 30 bubbles at radius 400px
+ * - Ring 3: 36 bubbles at radius 480px
+ * - Ring 4: 42 bubbles at radius 560px
  *
- * @param flavors - Array of flavors to position
+ * @param flavors - Array of flavors to position (should be 132)
  * @returns Array of bubble positions
  */
 function calculateBubblePositionsAlgorithm(flavors: Flavor[]): BubblePosition[] {
   const positions: BubblePosition[] = [];
   const centerX = 450;
   const centerY = 450;
-  const baseRadius = 80; // Start distance from center
-  const bubbleSize = 50; // Approximate bubble diameter
-  const ringSpacing = bubbleSize * 1.2; // Space between rings
+  const voidCenterRadius = 120; // Empty center space
+  const bubbleRadius = 40;
 
-  let currentRadius = baseRadius;
-  const remainingFlavors = [...flavors];
-  let ringIndex = 0;
+  // Ring configuration: [count, radiusMultiplier]
+  const rings = [
+    { count: 24, radiusMultiplier: 5.0 },  // Ring 1: 320px
+    { count: 30, radiusMultiplier: 7.0 },  // Ring 2: 400px
+    { count: 36, radiusMultiplier: 9.0 },  // Ring 3: 480px
+    { count: 42, radiusMultiplier: 11.0 }, // Ring 4: 560px
+  ];
 
-  while (remainingFlavors.length > 0) {
-    // Calculate how many bubbles fit in this ring
-    const circumference = 2 * Math.PI * currentRadius;
-    const maxBubbles = Math.floor(circumference / (bubbleSize * 1.3));
-    const bubblesToPlace = Math.min(maxBubbles, remainingFlavors.length);
+  let flavorIndex = 0;
 
-    // Calculate angle step for even distribution
-    const angleStep = (2 * Math.PI) / bubblesToPlace;
+  // Place flavors in each ring
+  rings.forEach((ring, ringIndex) => {
+    const radius = voidCenterRadius + bubbleRadius * ring.radiusMultiplier;
 
-    // Place bubbles in this ring
-    for (let i = 0; i < bubblesToPlace; i++) {
-      const flavor = remainingFlavors.shift()!;
-      const angle = i * angleStep;
+    // Offset alternating rings by half an angle step for honeycomb effect
+    const offsetAngle = ringIndex % 2 === 0 ? 0 : Math.PI / ring.count;
+
+    for (let i = 0; i < ring.count && flavorIndex < flavors.length; i++, flavorIndex++) {
+      const flavor = flavors[flavorIndex];
+      const angle = (i * 2 * Math.PI) / ring.count;
+      const finalAngle = angle + offsetAngle;
 
       positions.push({
         tempId: `flavor-${flavor.id}`,
         number: flavor.id,
-        radius: currentRadius,
-        angle,
+        radius,
+        angle: finalAngle,
         // Pre-calculate screen coordinates
-        x: centerX + currentRadius * Math.cos(angle),
-        y: centerY + currentRadius * Math.sin(angle),
+        x: centerX + radius * Math.cos(finalAngle),
+        y: centerY + radius * Math.sin(finalAngle),
       });
     }
-
-    // Move to next ring
-    ringIndex++;
-    currentRadius = baseRadius + ringIndex * ringSpacing;
-  }
+  });
 
   return positions;
 }

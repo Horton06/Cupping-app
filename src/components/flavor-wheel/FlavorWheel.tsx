@@ -1,11 +1,12 @@
 /**
  * FlavorWheel Component
  *
- * Interactive flavor wheel with 132 flavors in concentric circles.
+ * Interactive flavor wheel with 132 flavors in honeycomb ring layout.
  * Features:
  * - Pan and pinch-to-zoom gestures
  * - Tap to select flavors
  * - Smooth animations with Reanimated
+ * - Honeycomb arrangement: 4 rings (24, 30, 36, 42 bubbles)
  */
 
 import React, { useCallback } from 'react';
@@ -29,7 +30,7 @@ const AnimatedSvg = Animated.createAnimatedComponent(Svg);
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const CANVAS_SIZE = 900; // Size of the flavor wheel canvas
-const BUBBLE_RADIUS = 20; // Base bubble radius
+const BUBBLE_RADIUS = 40; // Bubble radius (matches web mockup honeycomb layout)
 const MIN_SCALE = 0.5;
 const MAX_SCALE = 3;
 

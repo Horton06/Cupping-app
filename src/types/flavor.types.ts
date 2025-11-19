@@ -38,13 +38,17 @@ export interface SelectedFlavor {
 
 /**
  * Bubble position for rendering flavor wheel
- * Uses concentric circular arrangement (NOT hexagonal packing)
+ * Uses honeycomb ring-based arrangement with 4 rings:
+ * Ring 1: 24 bubbles at radius 320px
+ * Ring 2: 30 bubbles at radius 400px
+ * Ring 3: 36 bubbles at radius 480px
+ * Ring 4: 42 bubbles at radius 560px
  */
 export interface BubblePosition {
   tempId: string; // Unique render key: `flavor-${number}`
   number: number; // Flavor ID (1-132)
   radius: number; // Distance from center in pixels
-  angle: number; // Angle in radians
+  angle: number; // Angle in radians (with honeycomb offset)
   x?: number; // Cached screen x coordinate (optional)
   y?: number; // Cached screen y coordinate (optional)
 }
