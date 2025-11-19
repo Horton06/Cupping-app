@@ -8,13 +8,14 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import type { HistoryStackParamList } from './types';
 import { TEST_VALUE } from '../TEST_FILE';
+// Try importing just ONE screen to test
+import { HistoryListScreen as RealHistoryListScreen } from '@/screens/history/HistoryListScreen';
 // TEMPORARY: Commented out to test Metro
-// import { HistoryListScreen } from '@/screens/history/HistoryListScreen';
 // import { TableCuppingScreen } from '@/screens/history/TableCuppingScreen';
 // import { SessionDetailScreen } from '@/screens/sessions/SessionDetailScreen';
 // import { ComparisonScreen } from '@/screens/comparison/ComparisonScreen';
 import { View, Text } from 'react-native';
-const HistoryListScreen = () => <View><Text>History List Placeholder</Text></View>;
+const HistoryListScreen = RealHistoryListScreen; // Use the real one!
 const TableCuppingScreen = () => <View><Text>Table Cupping Placeholder</Text></View>;
 const SessionDetailScreen = () => <View><Text>Session Detail Placeholder</Text></View>;
 const ComparisonScreen = () => <View><Text>Comparison Placeholder</Text></View>;
