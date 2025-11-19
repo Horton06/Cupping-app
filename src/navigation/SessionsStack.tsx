@@ -9,6 +9,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import type { SessionsStackParamList } from './types';
 import { SessionsListScreen } from '@/views/sessions/SessionsListScreen';
 import { SessionDetailScreen } from '@/views/sessions/SessionDetailScreen';
+import { ComparisonScreen } from '@/views/comparison/ComparisonScreen';
 import { colors, typography } from '../theme';
 
 const Stack = createStackNavigator<SessionsStackParamList>();
@@ -49,6 +50,11 @@ export const SessionsStack: React.FC = () => {
         name="SessionEdit"
         component={SessionDetailScreen} // Placeholder
         options={{ title: 'Edit Session' }}
+      />
+      <Stack.Screen
+        name="Comparison"
+        component={ComparisonScreen}
+        options={{ title: 'Compare Coffees' }}
       />
     </Stack.Navigator>
   );

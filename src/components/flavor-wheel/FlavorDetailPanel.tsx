@@ -230,7 +230,6 @@ const styles = StyleSheet.create({
   intensityContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
     marginRight: spacing.md,
   },
   intensityDot: {
@@ -238,6 +237,7 @@ const styles = StyleSheet.create({
     height: 12,
     borderRadius: 6,
     borderWidth: 2,
+    marginRight: spacing.xs,
   },
   dominantButton: {
     width: 32,
