@@ -56,13 +56,16 @@ const SelectedFlavorItem: React.FC<{
   const translateX = useSharedValue(0);
 
   const panGesture = Gesture.Pan()
-    .activeOffsetX([-10, 10]) // Require horizontal movement
-    .failOffsetY([-10, 10]) // Fail if mostly vertical
+    .activeOffsetX([-15, 15]) // Require significant horizontal movement to activate
+    .failOffsetY([-15, 15]) // Fail if mostly vertical
+    .enableTrackpadTwoFingerGesture(false) // Disable trackpad interference
     .onChange((event) => {
+      'worklet';
       // Only allow left swipe
       translateX.value = Math.min(0, event.translationX);
     })
     .onEnd(() => {
+      'worklet';
       if (translateX.value < SWIPE_THRESHOLD) {
         // Swipe far enough - remove
         runOnJS(onRemove)();
