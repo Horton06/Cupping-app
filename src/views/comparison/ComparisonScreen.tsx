@@ -475,7 +475,7 @@ const styles = StyleSheet.create({
   selectorChips: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.sm,
+    marginHorizontal: -spacing.sm / 2,
   },
   selectorChip: {
     paddingVertical: spacing.sm,
@@ -485,6 +485,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     maxWidth: '48%',
+    marginHorizontal: spacing.sm / 2,
+    marginBottom: spacing.sm,
   },
   selectorChipActive: {
     backgroundColor: colors.primary,
@@ -512,11 +514,12 @@ const styles = StyleSheet.create({
   chartsRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    gap: spacing.md,
+    marginHorizontal: -spacing.md / 2,
   },
   chartColumn: {
     flex: 1,
     alignItems: 'center',
+    marginHorizontal: spacing.md / 2,
   },
   chartLabel: {
     ...typography.bodySmall,
@@ -526,13 +529,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   deltaList: {
-    gap: spacing.sm,
+    marginVertical: -spacing.sm / 2,
   },
   deltaRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: spacing.xs,
+    marginVertical: spacing.sm / 2,
   },
   deltaAttribute: {
     ...typography.body,
@@ -576,18 +580,20 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs / 2,
   },
   flavorSimilarity: {
-    gap: spacing.sm,
+    marginVertical: -spacing.sm / 2,
   },
   flavorSimilarityLabel: {
     ...typography.bodySmall,
     color: colors.text.secondary,
     fontWeight: '500',
+    marginVertical: spacing.sm / 2,
   },
   similarityBarContainer: {
     height: 8,
     backgroundColor: colors.border,
     borderRadius: spacing.xs,
     overflow: 'hidden',
+    marginVertical: spacing.sm / 2,
   },
   similarityBar: {
     height: '100%',
@@ -599,14 +605,15 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontWeight: 'bold',
     textAlign: 'right',
+    marginVertical: spacing.sm / 2,
   },
   metadataComparison: {
     flexDirection: 'row',
-    gap: spacing.md,
+    marginHorizontal: -spacing.md / 2,
   },
   metadataColumn: {
     flex: 1,
-    gap: spacing.xs,
+    marginHorizontal: spacing.md / 2,
   },
   metadataHeader: {
     ...typography.bodySmall,
@@ -617,6 +624,7 @@ const styles = StyleSheet.create({
   metadataText: {
     ...typography.caption,
     color: colors.text.secondary,
+    marginBottom: spacing.xs,
   },
   metadataDivider: {
     width: 1,
