@@ -4,7 +4,7 @@
  * State management and logic for the flavor wheel component.
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useSharedValue } from 'react-native-reanimated';
 import type { Flavor, BubblePosition, SelectedFlavor } from '../../types/flavor.types';
 import { flavorService } from '../../services/flavorService';
@@ -45,6 +45,11 @@ export const useFlavorWheel = ({
     return map;
   }, [bubblePositions]);
 
+  // Notify parent of selection changes
+  useEffect(() => {
+    onSelectionChange?.(selectedFlavors);
+  }, [selectedFlavors, onSelectionChange]);
+
   // Toggle flavor selection
   const toggleFlavor = useCallback((flavor: Flavor) => {
     setSelectedFlavors(prev => {
@@ -52,9 +57,7 @@ export const useFlavorWheel = ({
 
       if (existingIndex >= 0) {
         // Remove if already selected
-        const newSelection = prev.filter((_, i) => i !== existingIndex);
-        onSelectionChange?.(newSelection);
-        return newSelection;
+        return prev.filter((_, i) => i !== existingIndex);
       } else {
         // Add if not at max
         if (prev.length >= maxSelections) {
@@ -66,49 +69,38 @@ export const useFlavorWheel = ({
           intensity: 3, // Default intensity
           dominant: false,
         };
-        const newSelection = [...prev, newFlavor];
-        onSelectionChange?.(newSelection);
-        return newSelection;
+        return [...prev, newFlavor];
       }
     });
-  }, [maxSelections, onSelectionChange]);
+  }, [maxSelections]);
 
   // Update flavor intensity
   const updateIntensity = useCallback((flavorId: number, intensity: 1 | 2 | 3 | 4 | 5) => {
-    setSelectedFlavors(prev => {
-      const newSelection = prev.map(f =>
+    setSelectedFlavors(prev =>
+      prev.map(f =>
         f.flavorId === flavorId ? { ...f, intensity } : f
-      );
-      onSelectionChange?.(newSelection);
-      return newSelection;
-    });
-  }, [onSelectionChange]);
+      )
+    );
+  }, []);
 
   // Mark flavor as dominant
   const toggleDominant = useCallback((flavorId: number) => {
-    setSelectedFlavors(prev => {
-      const newSelection = prev.map(f =>
+    setSelectedFlavors(prev =>
+      prev.map(f =>
         f.flavorId === flavorId ? { ...f, dominant: !f.dominant } : f
-      );
-      onSelectionChange?.(newSelection);
-      return newSelection;
-    });
-  }, [onSelectionChange]);
+      )
+    );
+  }, []);
 
   // Remove flavor
   const removeFlavor = useCallback((flavorId: number) => {
-    setSelectedFlavors(prev => {
-      const newSelection = prev.filter(f => f.flavorId !== flavorId);
-      onSelectionChange?.(newSelection);
-      return newSelection;
-    });
-  }, [onSelectionChange]);
+    setSelectedFlavors(prev => prev.filter(f => f.flavorId !== flavorId));
+  }, []);
 
   // Clear all selections
   const clearSelections = useCallback(() => {
     setSelectedFlavors([]);
-    onSelectionChange?.([]);
-  }, [onSelectionChange]);
+  }, []);
 
   // Check if flavor is selected
   const isFlavorSelected = useCallback((flavorId: number) => {
