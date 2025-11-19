@@ -9,6 +9,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, SafeAreaView } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import type { FlavorSelectionRouteProp, NewSessionNavigationProp } from '../../navigation/types';
+import type { SelectedFlavor } from '../../types/flavor.types';
 import { FlavorWheel, FlavorDetailPanel, useFlavorWheel } from '../../components/flavor-wheel';
 import { Button } from '../../components';
 import { sessionService } from '../../services/sessionService';
@@ -22,14 +23,16 @@ export const FlavorSelectionScreen: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
+  const [selectedFlavors, setSelectedFlavors] = useState<SelectedFlavor[]>([]);
+
   const {
-    selectedFlavors,
     flavorMap,
     updateIntensity,
     removeFlavor,
     toggleDominant,
-    resetViewport,
   } = useFlavorWheel({
+    initialSelectedFlavors: selectedFlavors,
+    onSelectionChange: setSelectedFlavors,
     maxSelections: 10,
   });
 
@@ -84,6 +87,7 @@ export const FlavorSelectionScreen: React.FC = () => {
         <View style={styles.wheelContainer}>
           <FlavorWheel
             selectedFlavors={selectedFlavors}
+            onSelectionChange={setSelectedFlavors}
             maxSelections={10}
           />
         </View>
@@ -103,18 +107,10 @@ export const FlavorSelectionScreen: React.FC = () => {
         {/* Actions */}
         <View style={styles.actions}>
           <Button
-            title="Reset View"
-            onPress={resetViewport}
-            variant="ghost"
-            size="small"
-            style={styles.resetButton}
-          />
-          <Button
             title="Continue"
             onPress={handleContinue}
             loading={isSaving}
             disabled={selectedFlavors.length === 0}
-            style={styles.continueButton}
           />
         </View>
       </View>
@@ -145,19 +141,9 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
   },
   actions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     padding: spacing.lg,
     borderTopWidth: 1,
     borderTopColor: colors.border,
     backgroundColor: colors.surface,
-  },
-  resetButton: {
-    flex: 1,
-    marginRight: spacing.md,
-  },
-  continueButton: {
-    flex: 2,
   },
 });
