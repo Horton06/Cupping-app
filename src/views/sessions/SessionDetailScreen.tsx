@@ -13,6 +13,7 @@ import {
   StyleSheet,
   ScrollView,
   SafeAreaView,
+  Platform,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import type {
@@ -514,6 +515,6 @@ const styles = StyleSheet.create({
   infoValue: {
     ...typography.bodySmall,
     color: colors.text.secondary,
-    fontFamily: 'monospace',
+    fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace' }),
   },
 });

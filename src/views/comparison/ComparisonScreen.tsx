@@ -17,6 +17,7 @@ import {
   ScrollView,
   SafeAreaView,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
@@ -545,7 +546,7 @@ const styles = StyleSheet.create({
   deltaValue: {
     ...typography.body,
     fontWeight: 'bold',
-    fontFamily: 'monospace',
+    fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace' }),
   },
   overallDelta: {
     flexDirection: 'row',
@@ -559,7 +560,7 @@ const styles = StyleSheet.create({
   overallDeltaValue: {
     ...typography.heading3,
     fontWeight: 'bold',
-    fontFamily: 'monospace',
+    fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace' }),
   },
   flavorStats: {
     flexDirection: 'row',

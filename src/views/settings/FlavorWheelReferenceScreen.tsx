@@ -20,6 +20,7 @@ import {
   TextInput as RNTextInput,
   Modal,
   ScrollView,
+  Platform,
 } from 'react-native';
 import { Card, Badge, Divider } from '../../components';
 import { flavorService } from '../../services/flavorService';
@@ -482,15 +483,17 @@ const styles = StyleSheet.create({
   detailMeta: {
     ...typography.bodySmall,
     color: colors.text.secondary,
-    fontFamily: 'monospace',
+    fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace' }),
   },
   relatedFlavorsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.sm,
+    marginHorizontal: -spacing.sm / 2,
   },
   relatedFlavorChip: {
     flexDirection: 'row',
+    marginHorizontal: spacing.sm / 2,
+    marginBottom: spacing.sm,
     alignItems: 'center',
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.md,
