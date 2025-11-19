@@ -152,11 +152,9 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    gap: spacing.lg,
-  },
+  container: {},
   section: {
-    marginTop: spacing.md,
+    marginTop: spacing.lg,
   },
   sectionLabel: {
     ...typography.bodySmall,
@@ -167,7 +165,7 @@ const styles = StyleSheet.create({
   tagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.sm,
+    marginHorizontal: -spacing.sm / 2,
   },
   tag: {
     flexDirection: 'row',
@@ -178,6 +176,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
+    marginHorizontal: spacing.sm / 2,
+    marginBottom: spacing.sm,
   },
   tagSelected: {
     borderColor: colors.primary,
@@ -205,18 +205,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   customTagSection: {
-    marginTop: spacing.md,
+    marginTop: spacing.lg,
   },
   customTagInput: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: spacing.sm,
+    marginHorizontal: -spacing.sm / 2,
   },
   input: {
     flex: 1,
     marginBottom: 0,
+    marginHorizontal: spacing.sm / 2,
   },
   addButton: {
     marginTop: 0,
+    marginHorizontal: spacing.sm / 2,
   },
 });

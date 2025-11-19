@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
   optionsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.sm,
+    marginHorizontal: -spacing.sm / 2,
   },
   option: {
     paddingVertical: spacing.sm,
@@ -109,6 +109,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     minWidth: 100,
     alignItems: 'center',
+    marginHorizontal: spacing.sm / 2,
+    marginBottom: spacing.sm,
   },
   optionSelected: {
     borderColor: colors.primary,
