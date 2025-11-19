@@ -272,12 +272,13 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
     backgroundColor: colors.surface,
-    gap: spacing.md,
   },
   addButton: {
     flex: 1,
+    marginRight: spacing.md / 2,
   },
   continueButton: {
     flex: 1,
+    marginLeft: spacing.md / 2,
   },
 });
