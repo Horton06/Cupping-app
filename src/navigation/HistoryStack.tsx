@@ -8,8 +8,8 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import type { HistoryStackParamList } from './types';
 import { TEST_VALUE } from '../TEST_FILE';
-// Try importing just ONE screen to test
-import { HistoryListScreen as RealHistoryListScreen } from '@/screens/history/HistoryListScreen';
+// Try importing from the NEW views directory instead of screens
+import { HistoryListScreen as RealHistoryListScreen } from '@/views/history/HistoryListScreen';
 // TEMPORARY: Commented out to test Metro
 // import { TableCuppingScreen } from '@/screens/history/TableCuppingScreen';
 // import { SessionDetailScreen } from '@/screens/sessions/SessionDetailScreen';
