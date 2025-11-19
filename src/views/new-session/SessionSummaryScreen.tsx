@@ -291,7 +291,7 @@ export const SessionSummaryScreen: React.FC = () => {
               </View>
               {stats.duration && (
                 <View style={styles.statItem}>
-                  <Text style={styles.statValue}>{stats.duration}m</Text>
+                  <Text style={styles.statValue}>{`${stats.duration}m`}</Text>
                   <Text style={styles.statLabel}>Duration</Text>
                 </View>
               )}
