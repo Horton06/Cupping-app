@@ -12,7 +12,7 @@ import {
   DataManagementScreen,
   SettingsScreen,
   FlavorWheelReferenceScreen,
-} from '../screens/settings';
+} from '../screens/settings/index';
 import { colors, typography } from '../theme';
 
 const Stack = createStackNavigator<SettingsStackParamList>();

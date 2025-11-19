@@ -12,7 +12,7 @@ import {
   CoffeeSetupScreen,
   FlavorSelectionScreen,
   StructureScoringScreen,
-} from '../screens/new-session';
+} from '../screens/new-session/index';
 import { colors, typography } from '../theme';
 
 const Stack = createStackNavigator<NewSessionStackParamList>();
