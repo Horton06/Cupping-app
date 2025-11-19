@@ -6,12 +6,8 @@
  */
 
 import React, { memo } from 'react';
-import { Circle, G } from 'react-native-svg';
-import Animated from 'react-native-reanimated';
+import { Circle, G, Text } from 'react-native-svg';
 import type { Flavor } from '../../types/flavor.types';
-
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
-const AnimatedG = Animated.createAnimatedComponent(G);
 
 export interface FlavorBubbleProps {
   flavor: Flavor;
@@ -37,9 +33,9 @@ export const FlavorBubble: React.FC<FlavorBubbleProps> = memo(({
   const strokeOpacity = isSelected ? 1 : 0.6;
 
   return (
-    <AnimatedG onPress={() => onPress(flavor)}>
+    <G>
       {/* Main bubble circle */}
-      <AnimatedCircle
+      <Circle
         cx={x}
         cy={y}
         r={radius}
@@ -48,11 +44,12 @@ export const FlavorBubble: React.FC<FlavorBubbleProps> = memo(({
         stroke={flavor.color}
         strokeWidth={strokeWidth}
         strokeOpacity={strokeOpacity}
+        onPress={() => onPress(flavor)}
       />
 
       {/* Selection ring for selected flavors */}
       {isSelected && (
-        <AnimatedCircle
+        <Circle
           cx={x}
           cy={y}
           r={radius + 4}
@@ -62,7 +59,22 @@ export const FlavorBubble: React.FC<FlavorBubbleProps> = memo(({
           strokeOpacity={0.8}
         />
       )}
-    </AnimatedG>
+
+      {/* Flavor name label - only show for larger bubbles */}
+      {radius > 20 && (
+        <Text
+          x={x}
+          y={y}
+          fontSize={10}
+          fill="#000"
+          fillOpacity={0.7}
+          textAnchor="middle"
+          alignmentBaseline="middle"
+        >
+          {flavor.name.split(' ')[0]}
+        </Text>
+      )}
+    </G>
   );
 });
 
