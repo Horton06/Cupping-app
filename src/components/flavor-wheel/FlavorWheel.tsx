@@ -4,18 +4,18 @@
  * Interactive flavor wheel with 132 flavors in concentric circles.
  * Features:
  * - Pan and pinch-to-zoom gestures
- * - Viewport culling (only render visible bubbles)
+ * - Tap to select flavors
  * - Smooth animations with Reanimated
- * - Selection state management
  */
 
-import React, { useMemo } from 'react';
-import { Dimensions, StyleSheet } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { Dimensions, StyleSheet, View } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedStyle,
   withSpring,
   runOnJS,
+  useSharedValue,
 } from 'react-native-reanimated';
 import Svg from 'react-native-svg';
 import { FlavorBubble } from './FlavorBubble';
@@ -44,9 +44,6 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
   const {
     bubblePositions,
     flavorMap,
-    translateX,
-    translateY,
-    scale,
     toggleFlavor,
     isFlavorSelected,
     getFlavorIntensity,
@@ -56,11 +53,30 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
     maxSelections,
   });
 
-  // Pan gesture
+  // Center the wheel initially
+  const initialX = (SCREEN_WIDTH - CANVAS_SIZE) / 2;
+  const initialY = (SCREEN_HEIGHT - CANVAS_SIZE) / 2;
+
+  const translateX = useSharedValue(initialX);
+  const translateY = useSharedValue(initialY);
+  const scale = useSharedValue(1);
+  const isPanning = useSharedValue(false);
+
+  // Pan gesture with minimum movement threshold
   const panGesture = Gesture.Pan()
+    .onBegin(() => {
+      isPanning.value = true;
+    })
     .onChange((event) => {
-      translateX.value += event.changeX / scale.value;
-      translateY.value += event.changeY / scale.value;
+      translateX.value += event.changeX;
+      translateY.value += event.changeY;
+    })
+    .onEnd(() => {
+      // Small delay to prevent tap from firing after pan
+      setTimeout(() => {
+        'worklet';
+        isPanning.value = false;
+      }, 50);
     });
 
   // Pinch gesture
@@ -88,25 +104,14 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
     ],
   }));
 
-  // Viewport culling: only render bubbles that are visible
-  const visibleBubbles = useMemo(() => {
-    const viewportPadding = 100; // Extra padding to avoid popping
-    const minX = -translateX.value - viewportPadding;
-    const maxX = -translateX.value + SCREEN_WIDTH / scale.value + viewportPadding;
-    const minY = -translateY.value - viewportPadding;
-    const maxY = -translateY.value + SCREEN_HEIGHT / scale.value + viewportPadding;
+  // Handle bubble press - check if we're not panning
+  const handleBubblePress = useCallback((flavor: Flavor) => {
+    if (!isPanning.value) {
+      toggleFlavor(flavor);
+    }
+  }, [toggleFlavor, isPanning]);
 
-    return bubblePositions.filter(pos => {
-      const x = pos.x || 0;
-      const y = pos.y || 0;
-      return x >= minX && x <= maxX && y >= minY && y <= maxY;
-    });
-  }, [bubblePositions, translateX.value, translateY.value, scale.value]);
-
-  // Handle bubble press
-  const handleBubblePress = (flavor: Flavor) => {
-    runOnJS(toggleFlavor)(flavor);
-  };
+  console.log(`[FlavorWheel] Rendering ${bubblePositions.length} bubbles`);
 
   return (
     <GestureDetector gesture={composedGesture}>
@@ -116,8 +121,8 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
           height={CANVAS_SIZE}
           viewBox={`0 0 ${CANVAS_SIZE} ${CANVAS_SIZE}`}
         >
-          {/* Render only visible bubbles */}
-          {visibleBubbles.map(position => {
+          {/* Render all bubbles - no viewport culling for now */}
+          {bubblePositions.map(position => {
             const flavor = flavorMap.get(position.number);
             if (!flavor) return null;
 
@@ -133,7 +138,11 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
                 radius={BUBBLE_RADIUS}
                 isSelected={isSelected}
                 intensity={intensity}
-                onPress={handleBubblePress}
+                onPress={() => {
+                  if (!isPanning.value) {
+                    handleBubblePress(flavor);
+                  }
+                }}
               />
             );
           })}
