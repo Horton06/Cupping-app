@@ -28,13 +28,15 @@ import { colors } from '../../theme';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const CANVAS_SIZE = 900; // Size of the flavor wheel canvas
+const CANVAS_CENTER = 450; // Center of 900x900 canvas
 const BUBBLE_RADIUS = 40; // Bubble radius (matches web mockup honeycomb layout)
 const MIN_SCALE = 0.5;
 const MAX_SCALE = 3;
 
-// SVG viewBox configuration - show a window into the 900x900 canvas
+// Initial viewBox configuration - start zoomed in to show a 500x500 window centered on the wheel
 const INITIAL_VIEW_SIZE = 500;
-const CANVAS_CENTER = 450; // Center of 900x900 canvas
+const INITIAL_VIEW_X = CANVAS_CENTER - INITIAL_VIEW_SIZE / 2; // 200
+const INITIAL_VIEW_Y = CANVAS_CENTER - INITIAL_VIEW_SIZE / 2; // 200
 
 export interface FlavorWheelProps {
   selectedFlavors?: SelectedFlavor[];
@@ -67,11 +69,16 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
 
   // Handle tap on the wheel - find and toggle flavor
   const handleTap = useCallback((screenX: number, screenY: number, currentScale: number, currentTranslateX: number, currentTranslateY: number) => {
-    // Convert screen coordinates to SVG coordinates accounting for transform
-    const svgX = (screenX - SCREEN_WIDTH / 2 - currentTranslateX) / currentScale + CANVAS_CENTER;
-    const svgY = (screenY - SCREEN_HEIGHT / 2 - currentTranslateY) / currentScale + CANVAS_CENTER;
+    // Convert screen coordinates to SVG coordinates
+    // Step 1: Map screen coords to base SVG coords (accounting for viewBox)
+    const baseSvgX = INITIAL_VIEW_X + (screenX / SCREEN_WIDTH) * INITIAL_VIEW_SIZE;
+    const baseSvgY = INITIAL_VIEW_Y + (screenY / SCREEN_HEIGHT) * INITIAL_VIEW_SIZE;
 
-    console.log('[FlavorWheel] Tap at screen:', screenX, screenY, '→ SVG:', svgX, svgY, 'scale:', currentScale);
+    // Step 2: Reverse the transform (scale and translate around center)
+    const svgX = ((baseSvgX - CANVAS_CENTER) / currentScale) + CANVAS_CENTER - currentTranslateX;
+    const svgY = ((baseSvgY - CANVAS_CENTER) / currentScale) + CANVAS_CENTER - currentTranslateY;
+
+    console.log('[FlavorWheel] Tap at screen:', screenX, screenY, '→ base SVG:', baseSvgX, baseSvgY, '→ transformed SVG:', svgX, svgY);
 
     // Find bubble at this position
     for (const position of bubblePositions) {
@@ -155,8 +162,10 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
   const AnimatedG = Animated.createAnimatedComponent(G);
 
   // Animated props for the G transform
+  // Transform origin is the center of the canvas (450, 450)
   const groupAnimatedProps = useAnimatedProps(() => ({
-    transform: `translate(${CANVAS_CENTER + translateX.value / scale.value},${CANVAS_CENTER + translateY.value / scale.value}) scale(${scale.value})`,
+    transform: `translate(${translateX.value}, ${translateY.value}) scale(${scale.value})`,
+    transformOrigin: `${CANVAS_CENTER} ${CANVAS_CENTER}`,
   }));
 
   return (
@@ -165,9 +174,9 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
         <Svg
           width="100%"
           height="100%"
-          viewBox={`0 0 ${CANVAS_SIZE} ${CANVAS_SIZE}`}
+          viewBox={`${INITIAL_VIEW_X} ${INITIAL_VIEW_Y} ${INITIAL_VIEW_SIZE} ${INITIAL_VIEW_SIZE}`}
         >
-          <AnimatedG animatedProps={groupAnimatedProps} origin={`${CANVAS_CENTER}, ${CANVAS_CENTER}`}>
+          <AnimatedG animatedProps={groupAnimatedProps}>
             {/* Center point marker for debugging */}
             <Circle
               cx={CANVAS_CENTER}
