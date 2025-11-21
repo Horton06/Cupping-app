@@ -9,7 +9,7 @@
  * - Selection state management
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, {
@@ -56,6 +56,17 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
     maxSelections,
   });
 
+  // Initialize viewport to center the wheel on first render
+  // The canvas is 900x900 with center at (450, 450)
+  // We need to offset it so the center is visible on screen
+  useEffect(() => {
+    // Center the wheel - translate so that canvas center (450, 450) is at screen center
+    const initialX = (SCREEN_WIDTH / 2) - (CANVAS_SIZE / 2);
+    const initialY = (SCREEN_HEIGHT / 2) - (CANVAS_SIZE / 2);
+    translateX.value = initialX;
+    translateY.value = initialY;
+  }, [translateX, translateY]);
+
   // Pan gesture
   const panGesture = Gesture.Pan()
     .onChange((event) => {
@@ -88,20 +99,14 @@ export const FlavorWheel: React.FC<FlavorWheelProps> = ({
     ],
   }));
 
-  // Viewport culling: only render bubbles that are visible
+  // Render all bubbles (viewport culling disabled)
+  // Note: Viewport culling with Reanimated shared values requires
+  // useAnimatedReaction to trigger re-renders, which was causing
+  // bubbles to not appear initially
   const visibleBubbles = useMemo(() => {
-    const viewportPadding = 100; // Extra padding to avoid popping
-    const minX = -translateX.value - viewportPadding;
-    const maxX = -translateX.value + SCREEN_WIDTH / scale.value + viewportPadding;
-    const minY = -translateY.value - viewportPadding;
-    const maxY = -translateY.value + SCREEN_HEIGHT / scale.value + viewportPadding;
-
-    return bubblePositions.filter(pos => {
-      const x = pos.x || 0;
-      const y = pos.y || 0;
-      return x >= minX && x <= maxX && y >= minY && y <= maxY;
-    });
-  }, [bubblePositions, translateX.value, translateY.value, scale.value]);
+    console.log('[FlavorWheel] Rendering', bubblePositions.length, 'bubbles');
+    return bubblePositions;
+  }, [bubblePositions]);
 
   // Handle bubble press
   const handleBubblePress = (flavor: Flavor) => {
